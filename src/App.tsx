@@ -1,3 +1,5 @@
+import { LabShell } from './shell/LabShell';
+
 export default function App() {
-  return <div>Tutor Labs</div>;
+  return <LabShell />;
 }

@@ -1,0 +1,27 @@
+.watchfor {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn-border);
+  border-left-width: 3px;
+  border-radius: 6px;
+  padding: 10px 14px;
+}
+
+.watchfor-kicker {
+  margin: 0 0 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--warn-border);
+  font-weight: 700;
+}
+
+.watchfor-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.watchfor-list li {
+  font-size: 15px;
+  color: #6b4a12;
+  margin: 3px 0;
+}
