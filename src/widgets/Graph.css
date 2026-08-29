@@ -10,6 +10,17 @@
   display: block;
 }
 
-.graph-label {
+.graph-zero-label {
+  fill: var(--c-zero);
+  font-size: 14px;
+}
+
+.graph-run-label {
+  fill: var(--c-run);
+  font-size: 13px;
+}
+
+.graph-rise-label {
+  fill: var(--c-rise);
   font-size: 13px;
 }

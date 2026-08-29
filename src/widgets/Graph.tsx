@@ -1,5 +1,6 @@
 import './Graph.css';
-import { toNumber } from '../engine/rational';
+import { toNumber, isZero, format, sub } from '../engine/rational';
+import { zeroFromEquation, yAt } from '../engine/math';
 import type { Rational } from '../engine/types';
 
 const LO = -10;
@@ -48,6 +49,10 @@ export type GraphProps = {
 
 export function Graph(props: GraphProps) {
   const seg = props.vertical ? null : lineSegment(props.m, props.b);
+  const zero = props.vertical ? null : zeroFromEquation(props.m, props.b);
+
+  const showTriangle = props.showTriangle && !props.vertical && !isZero(props.m);
+  const triangle = showTriangle ? buildTriangle(props.m, props.b) : null;
 
   return (
     <div className="graph">
@@ -85,7 +90,87 @@ export function Graph(props: GraphProps) {
             vectorEffect="non-scaling-stroke"
           />
         )}
+
+        {triangle && (
+          <g className="graph-triangle">
+            <line
+              x1={triangle.runX1}
+              y1={triangle.baseY}
+              x2={triangle.runX2}
+              y2={triangle.baseY}
+              stroke="var(--c-run)"
+              strokeWidth="2"
+              strokeDasharray="5 4"
+              vectorEffect="non-scaling-stroke"
+            />
+            <line
+              x1={triangle.runX2}
+              y1={triangle.baseY}
+              x2={triangle.runX2}
+              y2={triangle.topY}
+              stroke="var(--c-rise)"
+              strokeWidth="2"
+              strokeDasharray="5 4"
+              vectorEffect="non-scaling-stroke"
+            />
+            <text
+              className="graph-run-label"
+              x={(triangle.runX1 + triangle.runX2) / 2}
+              y={triangle.baseY + 16}
+              textAnchor="middle"
+            >
+              {`run ${triangle.run}`}
+            </text>
+            <text
+              className="graph-rise-label"
+              x={triangle.runX2 + 8}
+              y={(triangle.baseY + triangle.topY) / 2}
+            >
+              {`rise ${triangle.rise}`}
+            </text>
+          </g>
+        )}
+
+        {props.showZero && !props.vertical && zero !== null && (
+          <g>
+            <circle
+              cx={sx(toNumber(zero))}
+              cy={sy(0)}
+              r="7"
+              fill="none"
+              stroke="var(--c-zero)"
+              strokeWidth="2.5"
+            />
+            <text className="graph-zero-label" x={sx(toNumber(zero)) + 12} y={sy(0) + 20}>
+              {`zero = ${format(zero)}`}
+            </text>
+          </g>
+        )}
+
+        {props.showZero && !props.vertical && zero === null && (
+          <text className="graph-zero-label" x="20" y="400">
+            {isZero(props.b)
+              ? 'every x is a zero — this line is the x-axis'
+              : 'no zero — this line never crosses the x-axis'}
+          </text>
+        )}
       </svg>
     </div>
   );
+}
+
+function buildTriangle(m: Rational, b: Rational) {
+  const runX = m.d;
+  const yBase = toNumber(b);
+  const yTop = toNumber(yAt(m, b, runX));
+  const rise = sub(yAt(m, b, runX), b);
+
+  return {
+    runX1: sx(0),
+    runX2: sx(runX),
+    baseY: sy(yBase),
+    topY: sy(yTop),
+    run: runX,
+    rise: format(rise),
+  };
 }
