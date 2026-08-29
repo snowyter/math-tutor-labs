@@ -1,0 +1,29 @@
+.table {
+  border-collapse: collapse;
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table th,
+.table td {
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  text-align: center;
+  min-width: 56px;
+}
+
+.table th {
+  background: #f6f6f8;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
+
+.table td.is-highlight {
+  background: #eef4fd;
+}
+
+.table td.is-zero {
+  color: var(--c-zero);
+  font-weight: 600;
+  background: #fdeef1;
+}
