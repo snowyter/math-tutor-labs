@@ -1,6 +1,7 @@
 import './Graph.css';
-import { toNumber, isZero, format, sub } from '../engine/rational';
+import { toNumber, isZero, format, sub, rat } from '../engine/rational';
 import { zeroFromEquation, yAt } from '../engine/math';
+import { Fraction } from './Fraction';
 import type { Rational } from '../engine/types';
 
 const LO = -10;
@@ -155,6 +156,59 @@ export function Graph(props: GraphProps) {
           </text>
         )}
       </svg>
+
+      {props.onChange && (
+        <div className="graph-controls">
+          <label className="graph-slider">
+            <span className="graph-slider-label">slope</span>
+            <input
+              type="range"
+              min={-30}
+              max={30}
+              step={1}
+              value={Math.round(toNumber(props.m) * 6)}
+              onChange={(e) => props.onChange!(rat(Number(e.target.value), 6), props.b)}
+            />
+            <span className="graph-slider-value">
+              <Fraction value={props.m} />
+            </span>
+          </label>
+
+          <label className="graph-slider">
+            <span className="graph-slider-label">y-intercept</span>
+            <input
+              type="range"
+              min={-10}
+              max={10}
+              step={1}
+              value={Math.round(toNumber(props.b))}
+              onChange={(e) => props.onChange!(props.m, rat(Number(e.target.value)))}
+            />
+            <span className="graph-slider-value">
+              <Fraction value={props.b} />
+            </span>
+          </label>
+        </div>
+      )}
+
+      <div className="graph-readout">
+        <span className="student-text">
+          y = <Fraction value={props.m} />x + <Fraction value={props.b} />
+        </span>
+        {props.vertical ? (
+          <span className="graph-zero-text">
+            {`x = ${format(props.vertical)} — slope is undefined`}
+          </span>
+        ) : zero === null ? (
+          <span className="graph-zero-text">
+            {isZero(props.b)
+              ? 'every x is a zero — this line is the x-axis'
+              : 'no zero — this line never crosses the x-axis'}
+          </span>
+        ) : (
+          <span className="graph-zero-text">{`zero: x = ${format(zero)}`}</span>
+        )}
+      </div>
     </div>
   );
 }

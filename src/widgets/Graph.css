@@ -24,3 +24,45 @@
   fill: var(--c-rise);
   font-size: 13px;
 }
+
+.graph-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.graph-slider {
+  display: grid;
+  grid-template-columns: 84px 1fr 40px;
+  align-items: center;
+  gap: 10px;
+}
+
+.graph-slider-label {
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+
+.graph-slider input[type='range'] {
+  width: 100%;
+  accent-color: var(--c-line);
+}
+
+.graph-slider-value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.graph-readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 16px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.graph-zero-text {
+  color: var(--c-zero);
+  font-size: 15px;
+}
