@@ -1,4 +1,4 @@
-import { rat, format } from '../src/engine/rational';
+import { rat, format, isZero } from '../src/engine/rational';
 import type { LinearExample, Section } from '../src/engine/types';
 
 function zeroText(ex: LinearExample): string {
@@ -68,4 +68,133 @@ export function sectionsOneTwo(ex: LinearExample): Section[] {
       ],
     },
   ];
+}
+
+export function sectionsThreeFive(ex: LinearExample): Section[] {
+  const rows = ex.table;
+  const zeroRowIndex = rows.findIndex((r) => isZero(r.y));
+  const zero = ex.zero ?? 'none';
+
+  const tableSection: Section =
+    ex.tableKind === 'includes-zero'
+      ? {
+          id: 'from-table-includes',
+          title: 'From a table that includes y = 0',
+          body: 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
+          widget: {
+            kind: 'table',
+            highlightRows: [zeroRowIndex, Math.min(zeroRowIndex + 1, rows.length - 1)],
+          },
+          steps: [
+            {
+              text: 'Look down the y row for a 0.',
+              why: 'A y-value of 0 means that point sits on the x-axis.',
+            },
+            { text: `The x above it is the zero: ${zeroText(ex)}.` },
+            {
+              text: 'For the slope, take any two columns. Rise is the change in y, run is the change in x.',
+            },
+            {
+              text: 'What is the zero?',
+              answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
+            },
+            {
+              text: 'What is the slope?',
+              answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+            },
+          ],
+          watchFor: [
+            'Any two columns give the same slope — pick easy ones.',
+            'The zero is the x above the 0, not the 0 itself.',
+          ],
+        }
+      : {
+          id: 'from-table-excludes',
+          title: 'From a table with no y = 0',
+          body:
+            'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then work it out.',
+          widget: { kind: 'table', highlightRows: [0, 1] },
+          steps: [
+            { text: 'There is no 0 in the y row, so the zero is not in the table.' },
+            {
+              text: 'The line still crosses the x-axis — just between the rows we have.',
+              why: 'The table only shows a few points. The line goes on past them.',
+            },
+            {
+              text: 'First find the slope from any two columns.',
+              answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+            },
+            { text: 'Then use it: from any column, x = the column x minus y over m.' },
+            {
+              text: 'What is the zero?',
+              answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
+            },
+          ],
+          watchFor: [
+            'No y = 0 in the table does not mean there is no zero — the line still crosses, just between rows.',
+            'Order matters here: find the slope first, then the zero.',
+          ],
+        };
+
+  return [
+    tableSection,
+    {
+      id: 'from-equation',
+      title: 'From an equation',
+      body: 'In y = mx + b, the slope and the y-intercept are both sitting in the equation.',
+      widget: { kind: 'expression' },
+      steps: [
+        { text: 'm is the number multiplied by x — that is the slope.' },
+        { text: 'b is the number on its own — where the line crosses the y-axis.' },
+        {
+          text: 'The zero is where y is 0, so solve 0 = mx + b.',
+          why: 'Set y to 0 because the zero is where the line meets the x-axis.',
+        },
+        { text: 'Take b off both sides, then divide by m. So x = -b/m.' },
+        {
+          text: 'What is the slope?',
+          answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+        },
+        {
+          text: 'What is the zero?',
+          answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
+        },
+      ],
+      watchFor: [
+        'm is the number times x, not the number on its own.',
+        'The zero is negative b divided by m — the sign is the usual place it goes wrong.',
+      ],
+    },
+    {
+      id: 'from-graph',
+      title: 'From a graph',
+      body: 'Read the slope and the zero straight off the picture.',
+      widget: { kind: 'graph', showTriangle: true, showZero: true },
+      steps: [
+        { text: 'Find two points on the line that sit exactly on grid corners.' },
+        { text: 'Count squares up or down between them — that is the rise.' },
+        { text: 'Count squares across — that is the run.' },
+        { text: 'Slope is rise over run.', why: 'Rise on top, run on the bottom.' },
+        {
+          text: 'Follow the line down to where it crosses the x-axis. That x is the zero.',
+        },
+        {
+          text: 'What is the slope?',
+          answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+        },
+        {
+          text: 'What is the zero?',
+          answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
+        },
+      ],
+      watchFor: [
+        'Pick points on grid corners. Points elsewhere give fractions that are hard to count.',
+        'The zero is where it crosses the x-axis, not the y-axis.',
+      ],
+    },
+  ];
+}
+
+export function sectionsFor(ex: LinearExample): Section[] {
+  return [...sectionsOneTwo(ex), ...sectionsThreeFive(ex)];
 }
