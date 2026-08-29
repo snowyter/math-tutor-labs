@@ -133,7 +133,7 @@ export function LabShell() {
             <NumberLine from={section.widget.from} to={section.widget.to} />
           )}
 
-          <StepReveal steps={section.steps} />
+          <StepReveal key={section.id} steps={section.steps} />
 
           {tutorMode && section.watchFor && <WatchFor items={section.watchFor} />}
           {tutorMode && section.tutorNote && (
