@@ -1,0 +1,57 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.student-text {
+  font-size: 19px;
+}
+
+.soft {
+  color: var(--ink-soft);
+}
+
+.faint {
+  color: var(--ink-faint);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+
+button:hover {
+  background: #f2f2f4;
+}
+
+button.primary {
+  background: var(--c-line);
+  border-color: var(--c-line);
+  color: #fff;
+}
+
+button.primary:hover {
+  filter: brightness(1.06);
+}
+
+input[type='text'] {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--ink);
+}
