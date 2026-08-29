@@ -99,10 +99,117 @@ const fractionsAsDivision: PrereqLesson = {
   ],
 };
 
+const simplifyingFractions: PrereqLesson = {
+  id: 'simplifying-fractions',
+  title: 'Simplifying fractions',
+  steps: [
+    { text: '4 over 6 and 2 over 3 are the same number.' },
+    {
+      text: 'You get from one to the other by dividing the top and the bottom by the same thing.',
+    },
+    { text: 'Divide both by 2: 4 divided by 2 is 2, and 6 divided by 2 is 3.' },
+    {
+      text: 'So 4 over 6 is 2 over 3.',
+      why: 'Dividing top and bottom by the same number does not change the value.',
+    },
+    {
+      text: 'Simplify 6 over 9.',
+      answer: { kind: 'numeric', prompt: '6/9 =', correct: rat(2, 3) },
+    },
+  ],
+};
+
+const yEqualsZero: PrereqLesson = {
+  id: 'y-equals-zero',
+  title: 'What y = 0 means',
+  widget: { kind: 'graph', showTriangle: false, showZero: true },
+  steps: [
+    { text: 'Every point on the x-axis has a y-value of 0.' },
+    {
+      text: 'So asking "where is y = 0?" is the same as asking "where does it cross the x-axis?"',
+    },
+    { text: 'That crossing point is called the zero.' },
+    {
+      text: 'Where on a graph is y = 0?',
+      answer: {
+        kind: 'choice',
+        prompt: 'y = 0 happens',
+        options: ['On the x-axis', 'On the y-axis', 'Only at the origin', 'At the top'],
+        correct: 0,
+      },
+    },
+  ],
+};
+
+const solvingTwoStep: PrereqLesson = {
+  id: 'solving-two-step-equations',
+  title: 'Solving a two-step equation',
+  steps: [
+    { text: 'Take 0 = 3x + 6. We want x on its own.' },
+    { text: 'Undo the +6 first: take 6 from both sides. That leaves -6 = 3x.' },
+    { text: 'Now undo the times-3: divide both sides by 3. That leaves -2 = x.' },
+    {
+      text: 'So x = -2.',
+      why: 'Undo the addition before the multiplication — you peel off the last layer first.',
+    },
+    {
+      text: 'Solve 0 = 2x + 8.',
+      answer: { kind: 'numeric', prompt: 'x =', correct: rat(-4) },
+    },
+  ],
+};
+
+const substitutingToCheck: PrereqLesson = {
+  id: 'substituting-to-check',
+  title: 'Checking by substituting back',
+  steps: [
+    { text: 'To check whether x = -2 is the zero of y = 3x + 6, put -2 where x is.' },
+    { text: 'y = 3 times -2, plus 6.' },
+    { text: 'That is -6 plus 6, which is 0.' },
+    {
+      text: 'y came out as 0, so x = -2 really is the zero.',
+      why: 'The zero is the x that makes y come out as 0. So substitute and look for 0.',
+    },
+    {
+      text: 'Check x = 4 in y = 2x - 8. What is y?',
+      answer: { kind: 'numeric', prompt: 'y =', correct: rat(0) },
+    },
+  ],
+};
+
+const divisionByZero: PrereqLesson = {
+  id: 'division-by-zero-undefined',
+  title: 'Why division by zero is undefined',
+  widget: { kind: 'graph', showTriangle: false, showZero: false },
+  steps: [
+    { text: 'Slope is rise over run.' },
+    { text: 'For a straight vertical line, the run is 0 — it does not go across at all.' },
+    { text: 'So the slope becomes rise divided by 0.' },
+    { text: 'Division by 0 has no answer, so the slope of a vertical line is undefined.' },
+    {
+      text: 'Undefined is not the same as zero. Zero slope is flat. Undefined slope is vertical.',
+    },
+    {
+      text: 'A vertical line has slope that is',
+      answer: {
+        kind: 'choice',
+        prompt: 'A vertical line has slope',
+        options: ['zero', 'undefined', '1', '-1'],
+        correct: 1,
+      },
+    },
+  ],
+};
+
 export const PREREQS: PrereqLesson[] = [
   coordinatePlane,
   readingAPoint,
   riseAndRunCounting,
   subtractingNegatives,
   fractionsAsDivision,
+  simplifyingFractions,
+  yEqualsZero,
+  solvingTwoStep,
+  substitutingToCheck,
+  divisionByZero,
 ];
