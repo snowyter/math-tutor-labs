@@ -1,0 +1,59 @@
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.answer-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.answer-prompt {
+  margin: 0;
+  font-size: 16px;
+  color: var(--ink-soft);
+}
+
+.answer-row input[type='text'] {
+  width: 110px;
+  font-size: 17px;
+}
+
+.answer-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.answer-choices button.is-ok {
+  background: var(--ok);
+  border-color: var(--ok);
+  color: #fff;
+}
+
+.answer-choices button.is-bad {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: #fff;
+}
+
+.answer-ok {
+  margin: 0;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.answer-bad {
+  margin: 0;
+  color: var(--bad);
+  font-weight: 600;
+}
+
+.answer-hint {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 15px;
+}
