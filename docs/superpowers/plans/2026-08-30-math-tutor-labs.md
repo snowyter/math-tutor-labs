@@ -1829,6 +1829,325 @@ push, do not open a PR — those need the user's say-so.
 
 ---
 
+# Addendum: prerequisite pages (added 2026-08-30)
+
+Tasks 1–16 built prerequisites as a full-screen focus overlay. **That was
+reversed.** Prerequisites are now separate pages, each with its own URL and its
+own manipulable. Tasks 17–23 replace `PrereqOverlay` and add the interactives.
+
+**Routing:** hand-rolled against `window.location.hash`. No router dependency
+(Global Constraints still allow `react` and `react-dom` only).
+
+- `#/lab/<labId>` — the lab
+- `#/prereq/<lessonId>` — a prerequisite lesson
+
+**Dragging lives here, not in the lab.** The lab keeps its sliders. The
+prerequisites are where the idea is built, so that is where dragging goes.
+Dragging snaps to whole grid positions and is pointer-based, so mouse, trackpad
+and touch all work.
+
+### Task 17: Hash routing and the prerequisite page shell
+
+**Files:**
+- Create: `src/shell/useHashRoute.ts`, `src/pages/PrereqPage.tsx`, `src/pages/PrereqPage.css`
+- Modify: `src/App.tsx`
+- Delete: `src/widgets/PrereqOverlay.tsx`, `src/widgets/PrereqOverlay.css`
+
+**Interfaces:**
+- Consumes: `prereqById`, `LABS` from Task 15; `StepReveal` from Task 9; `Lab` type
+- Produces: `useHashRoute()`, `PrereqPage`
+
+- [ ] **Step 1: Write `src/shell/useHashRoute.ts`**
+
+```ts
+import { useEffect, useState } from 'react';
+
+export type Route =
+  | { view: 'lab'; labId: string }
+  | { view: 'prereq'; lessonId: string };
+
+export function parseHash(hash: string, fallbackLabId: string): Route {
+  const m = /^#\/prereq\/(.+)$/.exec(hash);
+  if (m) return { view: 'prereq', lessonId: decodeURIComponent(m[1]!) };
+  const l = /^#\/lab\/(.+)$/.exec(hash);
+  if (l) return { view: 'lab', labId: decodeURIComponent(l[1]!) };
+  return { view: 'lab', labId: fallbackLabId };
+}
+
+export function useHashRoute(fallbackLabId: string): Route {
+  const [route, setRoute] = useState(() => parseHash(window.location.hash, fallbackLabId));
+
+  useEffect(() => {
+    const onChange = () => setRoute(parseHash(window.location.hash, fallbackLabId));
+    window.addEventListener('hashchange', onChange);
+    return () => window.removeEventListener('hashchange', onChange);
+  }, [fallbackLabId]);
+
+  return route;
+}
+
+export function goToLab(labId: string) {
+  window.location.hash = `#/lab/${encodeURIComponent(labId)}`;
+}
+
+export function goToPrereq(lessonId: string) {
+  window.location.hash = `#/prereq/${encodeURIComponent(lessonId)}`;
+}
+```
+
+- [ ] **Step 2: Write `src/pages/PrereqPage.tsx`**
+
+Props `{ lesson: PrereqLesson }`. Renders a header with a "Prerequisite" kicker,
+the lesson title, and a "Back to lab" button that calls `goToLab(LABS[0]!.id)`.
+Below that, a switch on `lesson.widget.kind` that renders the matching
+interactive (Tasks 18–21), then `<StepReveal steps={lesson.steps} />`.
+
+The switch needs a case for every prerequisite widget kind. Where a lesson has no
+widget, render nothing above the steps.
+
+- [ ] **Step 3: Write `src/pages/PrereqPage.css`**
+
+Full-page layout: max-width column, generous padding, header row with the back
+button on the right.
+
+- [ ] **Step 4: Rewrite `src/App.tsx`**
+
+```tsx
+import { useHashRoute } from './shell/useHashRoute';
+import { LabShell } from './shell/LabShell';
+import { PrereqPage } from './pages/PrereqPage';
+import { LABS, prereqById } from './engine/registry';
+
+export default function App() {
+  const route = useHashRoute(LABS[0]!.id);
+
+  if (route.view === 'prereq') {
+    const lesson = prereqById(route.lessonId);
+    if (lesson) return <PrereqPage lesson={lesson} />;
+  }
+  return <LabShell />;
+}
+```
+
+- [ ] **Step 5: Delete the overlay files**
+
+`git rm` `src/widgets/PrereqOverlay.tsx` and `src/widgets/PrereqOverlay.css`, and
+remove their import from `LabShell.tsx`.
+
+- [ ] **Step 6: Verify it compiles**
+
+Run: `npm run build`
+Expected: no errors.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add -A src && git commit -m "feat: route prerequisites to their own pages"
+```
+
+---
+
+### Task 18: DragPlane — draggable points on a coordinate plane
+
+**Files:**
+- Create: `src/widgets/DragPlane.tsx`, `src/widgets/DragPlane.css`
+- Delete: `src/widgets/NumberLine.tsx`, `src/widgets/NumberLine.css` once Task 19 lands
+
+**Interfaces:**
+- Consumes: `sx`, `sy` from `Graph.tsx` (Task 7a); `format`, `rat`, `toNumber` from Task 2; `slopeFromPoints` from Task 4; `Point`, `Rational` from Task 2
+- Produces: `DragPlane`, and the shared pointer-drag helper used by Tasks 19–21
+
+This one component backs five lessons. Props:
+
+```ts
+type DragPlaneProps = {
+  mode: 'free' | 'target' | 'riseRun' | 'vertical';
+  target?: { x: number; y: number };   // mode 'target': the goal position
+};
+```
+
+Behaviour:
+
+- Reuse the exact same 420×420 viewBox, grid pattern, and `sx`/`sy` mapping as
+  `Graph`, so the plane looks identical in the lab and in a prerequisite.
+- One draggable point in `free`, `target` and `vertical` modes; two in `riseRun`.
+- Drag via pointer events: `onPointerDown` on the handle calls
+  `setPointerCapture`, `onPointerMove` converts client coordinates to grid
+  coordinates and **snaps to whole numbers**, `onPointerUp` releases.
+  Converting client → viewBox requires `svg.getBoundingClientRect()` and the
+  scale factor between client pixels and viewBox units.
+- `free`: shows a live `(x, y)` readout.
+- `target`: shows the target as a hollow ring, and the readout turns green when
+  the student lands on it.
+- `riseRun`: draws the dashed rise/run triangle between the two points and shows
+  `rise`, `run`, and the resulting slope as a `Fraction`.
+- `vertical`: as `riseRun`, but when both points share an x the slope readout
+  shows "undefined" in `--c-zero` instead of a number — this is the whole point
+  of the lesson.
+- Render dashed guide lines from each point to the axes, so the connection
+  between a position and its coordinates is visible.
+
+- [ ] **Step 1: Write `src/widgets/DragPlane.tsx`**
+- [ ] **Step 2: Write `src/widgets/DragPlane.css`**
+- [ ] **Step 3: Verify it compiles**
+
+Run: `npm run build`
+Expected: no errors.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src/widgets/DragPlane.tsx src/widgets/DragPlane.css && git commit -m "feat: add draggable coordinate plane for prerequisites"
+```
+
+---
+
+### Task 19: DragNumberLine and FractionBars
+
+**Files:**
+- Create: `src/widgets/DragNumberLine.tsx`, `src/widgets/DragNumberLine.css`, `src/widgets/FractionBars.tsx`, `src/widgets/FractionBars.css`
+- Delete: `src/widgets/NumberLine.tsx`, `src/widgets/NumberLine.css`
+
+**Interfaces:**
+- Consumes: `format`, `rat` from Task 2; `Fraction` from Task 6; the drag helper from Task 18
+
+**DragNumberLine** props `{ from: number; to: number; start: number }`:
+
+- A draggable marker that snaps to whole numbers on a number line.
+- An arrow drawn from `start` to the marker's current position, so "−1 − 5"
+  becomes visible as a movement left of five steps.
+- A readout of the current value, and the size of the jump.
+
+**FractionBars** props `{ parts: number; shaded: number }` and
+`{ left: Parts; right: Parts }` — export both as `FractionBars` and
+`FractionCompare`:
+
+- `FractionBars`: one bar divided into `parts` equal pieces with `shaded` of them
+  filled in `--c-line`. A stepper lets the student change both numbers.
+- `FractionCompare`: two bars stacked, showing that 4/6 and 2/3 cover the same
+  length with different-sized pieces.
+
+- [ ] **Step 1: Write `DragNumberLine.tsx` and its CSS**
+- [ ] **Step 2: Write `FractionBars.tsx` (both components) and its CSS**
+- [ ] **Step 3: Remove the now-unused `NumberLine`**
+- [ ] **Step 4: Verify it compiles**
+
+Run: `npm run build`
+Expected: no errors.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add -A src/widgets && git commit -m "feat: add draggable number line and fraction bars"
+```
+
+---
+
+### Task 20: BalanceScale and Substitution
+
+**Files:**
+- Create: `src/widgets/BalanceScale.tsx`, `src/widgets/BalanceScale.css`, `src/widgets/Substitution.tsx`, `src/widgets/Substitution.css`
+
+**BalanceScale** props `{ coefficient: number; constant: number }`:
+
+- Renders `coefficient` x-blocks and `constant` unit blocks on the left pan, and
+  nothing on the right, representing `3x + 6 = 0`.
+- Two buttons: "Take <constant> off both sides" and "Split into <coefficient>
+  groups". Each applies one inverse operation and updates the displayed state.
+- The beam tilts to show which side is heavier, via a CSS transform.
+- When fully solved, shows `x = -2`.
+
+**Substitution** props `{ m: number; b: number }`:
+
+- A stepper or slider for x over a small integer range.
+- Shows the substitution worked out one line at a time: `y = 3 × (−2) + 6`, then
+  `y = −6 + 6`, then `y = 0`.
+- The final line is highlighted in `--c-zero` when y comes out as 0, because
+  reaching 0 is what makes the answer correct.
+
+- [ ] **Step 1: Write `BalanceScale.tsx` and its CSS**
+- [ ] **Step 2: Write `Substitution.tsx` and its CSS**
+- [ ] **Step 3: Verify it compiles**
+
+Run: `npm run build`
+Expected: no errors.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add src/widgets && git commit -m "feat: add balance scale and substitution interactives"
+```
+
+---
+
+### Task 21: Update the prerequisite content to use the interactives
+
+**Files:**
+- Modify: `src/engine/types.ts`, `prereqs/index.ts`, `src/pages/PrereqPage.tsx`
+- Modify: `src/shell/Toolbar.tsx` (Prereq dropdown navigates instead of opening)
+
+- [ ] **Step 1: Add the prerequisite widget kinds to `WidgetSpec`**
+
+Replace the `numberLine` kind with the seven interactive kinds listed in the spec:
+`dragPlane`, `dragRiseRun`, `dragVertical`, `dragNumberLine`, `fractionBars`,
+`fractionCompare`, `balanceScale`, `substitution`.
+
+- [ ] **Step 2: Rewrite each lesson's `widget` in `prereqs/index.ts`**
+
+| lesson id | widget |
+|---|---|
+| `coordinate-plane` | `{ kind: 'dragPlane', mode: 'free' }` |
+| `reading-a-point` | `{ kind: 'dragPlane', mode: 'target', target: { x: -2, y: 3 } }` |
+| `rise-and-run-counting` | `{ kind: 'dragRiseRun' }` |
+| `subtracting-negatives` | `{ kind: 'dragNumberLine', from: -10, to: 10, start: -1 }` |
+| `fractions-as-division` | `{ kind: 'fractionBars', parts: 4, shaded: 3 }` |
+| `simplifying-fractions` | `{ kind: 'fractionCompare', left: { parts: 6, shaded: 4 }, right: { parts: 3, shaded: 2 } }` |
+| `y-equals-zero` | `{ kind: 'dragPlane', mode: 'free' }` |
+| `solving-two-step-equations` | `{ kind: 'balanceScale', coefficient: 3, constant: 6 }` |
+| `substituting-to-check` | `{ kind: 'substitution', m: 2, b: -8 }` |
+| `division-by-zero-undefined` | `{ kind: 'dragVertical' }` |
+
+- [ ] **Step 3: Point the Toolbar's Prereq dropdown at `goToPrereq`**
+
+Instead of setting local state, the dropdown calls `goToPrereq(id)`.
+
+- [ ] **Step 4: Verify it compiles**
+
+Run: `npm run build`
+Expected: no errors.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add -A src prereqs && git commit -m "feat: give every prerequisite its own manipulable"
+```
+
+---
+
+### Task 22: Verify the prerequisite pages
+
+- [ ] **Step 1: Run the full test suite**
+
+Run: `npm test`
+Expected: all PASS.
+
+- [ ] **Step 2: Build**
+
+Run: `npm run build`
+Expected: no errors.
+
+- [ ] **Step 3: Smoke-test every prerequisite route**
+
+Start `npm run dev`, then fetch `index.html` and each module to confirm the
+module graph loads. The routes themselves are hash-based and cannot be exercised
+without a browser — note this honestly rather than claiming the pages render.
+
+- [ ] **Step 4: Report, do not merge**
+
+Leave the work on the `slope-and-zero` branch.
+
+---
+
 ## Known limitations at the end of this plan
 
 - Layout and wording are unverified. Only compile, unit tests, and a dev-server
@@ -1837,3 +2156,7 @@ push, do not open a PR — those need the user's say-so.
   large centred `y = mx + b`; there is no separate component.
 - Lab content is authored in TypeScript rather than a looser data format, so
   adding a lab means editing a `.ts` file that imports from `src/engine/`.
+- Drag interactions are pointer-based and unverified. Only mouse, trackpad and
+  touch are considered; stylus and accessibility fallbacks are not addressed.
+- Hash routing has no 404 handling. An unknown `#/prereq/<id>` falls through to
+  the lab silently.
