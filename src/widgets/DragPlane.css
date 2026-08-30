@@ -1,0 +1,55 @@
+.dragplane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dragplane-svg {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  display: block;
+  touch-action: none;
+}
+
+.dragplane-handle {
+  touch-action: none;
+}
+
+.dragplane-target-label {
+  fill: var(--ok);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dragplane-run-label {
+  fill: var(--c-run);
+  font-size: 13px;
+}
+
+.dragplane-rise-label {
+  fill: var(--c-rise);
+  font-size: 13px;
+}
+
+.dragplane-readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.dragplane-undefined {
+  color: var(--c-zero);
+  font-weight: 600;
+}
+
+.dragplane-ok {
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.dragplane-hint {
+  margin: 0;
+  font-size: 14px;
+}

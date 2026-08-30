@@ -1,0 +1,103 @@
+.balance {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.balance-equation {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.balance-scale {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.balance-beam {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  width: 100%;
+  max-width: 520px;
+  height: 4px;
+  background: var(--axis);
+  border-radius: 2px;
+  position: relative;
+}
+
+.balance-pan {
+  width: 44%;
+  min-height: 84px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 6px;
+  border-bottom: 3px solid var(--axis);
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(to top, #f4f4f6, transparent);
+}
+
+.balance-blocks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  padding: 6px;
+}
+
+.balance-block {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  background: var(--c-line);
+}
+
+.balance-block.is-x {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.balance-block.is-unit {
+  background: var(--c-run);
+}
+
+.balance-block.is-negative {
+  background: var(--c-zero);
+}
+
+.balance-zero {
+  color: var(--ink-faint);
+  font-size: 16px;
+}
+
+.balance-fulcrum {
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 20px solid var(--axis);
+}
+
+.balance-status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ok);
+  font-weight: 600;
+}
+
+.balance-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}

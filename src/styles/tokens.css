@@ -1,0 +1,24 @@
+:root {
+  --bg: #fbfbfa;
+  --panel: #ffffff;
+  --ink: #1c1c1f;
+  --ink-soft: #5c5c66;
+  --ink-faint: #8a8a94;
+  --line: #e2e2e6;
+  --grid: #ececf0;
+  --axis: #9a9aa4;
+
+  --c-line: #2f6fd0;
+  --c-rise: #2f9e63;
+  --c-run: #d98a1f;
+  --c-zero: #d0435c;
+
+  --ok: #2f9e63;
+  --bad: #d0435c;
+  --warn-bg: #fdf6e8;
+  --warn-border: #d98a1f;
+
+  --radius: 8px;
+  --gap: 16px;
+  --font: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}

@@ -22,11 +22,20 @@ student practice — accounts, saved progress, dashboards — are out of scope.
 | Lab authoring | One data file per lab, rendered by shared widgets | Labs are data, not components |
 | Layout | Graph left (fixed), steps right | Graph never moves or scrolls mid-explanation |
 | Manipulation | Sliders for slope and y-intercept | No drag-and-drop; calmest screen |
-| Tutor content | Notes inline under the current step; prerequisite lessons as a full-screen focus overlay | Prereq lessons always cover the lab, no exceptions |
+| Tutor content | Notes inline under the current step; prerequisite lessons are separate pages with their own URL | Prereq lessons get the whole screen and their own manipulable |
+| Prereq interaction | Dragging, in contrast to the lab's sliders | Hands-on where it's being learned, calm where it's being applied |
 | Theme | Light | Better in a well-lit room and on a shared screen |
 
-The user explicitly declined a proposal to let graph-based prerequisite lessons
-open side-by-side instead of as an overlay. Prerequisite presentation is uniform.
+Prerequisites were originally specified as a full-screen focus overlay, and the
+user declined a proposal to let graph-based lessons open side-by-side instead.
+**That decision was reversed on 2026-08-30.** Prerequisites are now separate
+pages, each with its own URL and its own interactive manipulable. The overlay is
+gone.
+
+The split with the sliders decision is deliberate rather than contradictory: the
+lab is where the student *applies* slope, so it stays calm and slider-driven. The
+prerequisites are where the student *builds* the idea, so that is where dragging
+lives.
 
 ## Architecture
 
@@ -49,12 +58,18 @@ src/
     StepReveal.tsx
     Fraction.tsx
     NumberLine.tsx     used by the subtracting-negatives prerequisite
-    PrereqOverlay.tsx
+    DragPlane.tsx      draggable point(s) on a plane; shared by 5 prereqs
+    FractionBars.tsx   bar model; shared by the two fraction prereqs
+    BalanceScale.tsx   used by solving-two-step-equations
+    Substitution.tsx   used by substituting-to-check
+  pages/
+    PrereqPage.tsx     a prerequisite lesson as a full page
   shell/
     LabShell.tsx       layout A: graph left, steps right
     LabPicker.tsx
     Toolbar.tsx        lab, difficulty, New example, Prereqs, Tutor toggle
     WatchFor.tsx       inline misconception strip
+    useHashRoute.ts    hand-rolled hash routing, no router dependency
 labs/
   slope-and-zero.ts
   index.ts
@@ -110,12 +125,23 @@ type Step = {
   answer?: Answer;
 };
 
+type Parts = { parts: number; shaded: number };
+
 type WidgetSpec =
+  // lab widgets
   | { kind: 'graph'; showTriangle: boolean; showZero: boolean }
   | { kind: 'graphPreset'; presets: LinePreset[] }   // Types of slope section
   | { kind: 'table'; highlightRows: number[] }
-  | { kind: 'numberLine'; from: number; to: number } // subtracting-negatives prereq
-  | { kind: 'expression' };
+  | { kind: 'expression' }
+  // prerequisite interactives — each is manipulable, never static
+  | { kind: 'dragPlane'; mode: 'free' | 'target'; target?: { x: number; y: number } }
+  | { kind: 'dragRiseRun' }                          // two draggable points
+  | { kind: 'dragVertical' }                         // drag until run = 0
+  | { kind: 'dragNumberLine'; from: number; to: number; start: number }
+  | { kind: 'fractionBars'; parts: number; shaded: number }
+  | { kind: 'fractionCompare'; left: Parts; right: Parts }
+  | { kind: 'balanceScale'; coefficient: number; constant: number }
+  | { kind: 'substitution'; m: number; b: number };
 
 type LinePreset =
   | { label: string; m: Rational; b: Rational }
@@ -170,28 +196,42 @@ Five sections, taught in this order:
 Sections 3–5 each pair a `StepReveal` worked solution with a `NumericInput`
 answer check.
 
-## Prerequisite lesson library
+## Prerequisite lesson pages
 
-Ten lessons, each 3–6 steps, each with its own mini-visual where one helps.
-Opened from a "Prereqs" button in the toolbar; always renders as a full-screen
-focus overlay with a "Back to lab" control that returns to the exact step.
+Ten lessons, each 3–6 steps, each with its own **manipulable** — something the
+student drags or operates, not a picture to look at.
 
-| id | Title | Visual |
+**Prerequisites are pages, not overlays.** Each has a real URL:
+
+- `#/lab/<labId>` — the lab
+- `#/prereq/<lessonId>` — a prerequisite lesson
+
+Routing is hand-rolled against `window.location.hash` and the `hashchange`
+event. No router dependency. Because it is a real URL, the browser back button
+works and a lesson can be bookmarked or opened directly before a session.
+
+Each page has a "Back to lab" control. The lab's toolbar keeps a "Prereq"
+dropdown that navigates to any of the lab's prerequisites.
+
+| id | Title | The student does this |
 |---|---|---|
-| `coordinate-plane` | The coordinate plane: axes, origin, direction | Graph |
-| `reading-a-point` | Reading a point — (x, y), across then up | Graph |
-| `rise-and-run-counting` | Rise and run as counting squares | Graph |
-| `subtracting-negatives` | Subtracting with negative numbers (−1 − 5) | Number line |
-| `fractions-as-division` | A fraction is a division; 2/3 is a number | Fraction |
-| `simplifying-fractions` | 4/6 = 2/3 | Fraction |
-| `y-equals-zero` | "y = 0" is the x-axis itself | Graph |
-| `solving-two-step-equations` | 0 = 2x + 6 by inverse operations | Text |
-| `substituting-to-check` | Substituting back to verify an answer | Text |
-| `division-by-zero-undefined` | Why division by zero is undefined | Graph |
+| `coordinate-plane` | The coordinate plane | Drag a point around; the (x, y) readout follows |
+| `reading-a-point` | Reading a point | Drag the point onto a given target, e.g. (−2, 3) |
+| `rise-and-run-counting` | Rise and run by counting | Drag two points; rise and run counters update live |
+| `subtracting-negatives` | Subtracting negative numbers | Drag a marker along a number line; the jump draws as an arrow |
+| `fractions-as-division` | A fraction is a division | Split a bar into parts and shade some of them |
+| `simplifying-fractions` | Simplifying fractions | See two bars regrouped into bigger pieces |
+| `y-equals-zero` | What y = 0 means | Drag a point; it lights up the moment y hits 0 |
+| `solving-two-step-equations` | Solving a two-step equation | Operate a balance scale: take 6 off, then split in 3 |
+| `substituting-to-check` | Checking by substituting back | Choose an x and watch y compute step by step |
+| `division-by-zero-undefined` | Why division by zero is undefined | Drag two points until the run hits 0 and the slope breaks |
 
 Lessons are stored in `prereqs/index.ts` and referenced by id, so a later lab
 can reuse `subtracting-negatives` and `solving-two-step-equations` without
 re-authoring them.
+
+Dragging snaps to whole grid positions. Every interactive is pointer-based, so it
+works with a mouse, a trackpad, or a finger on a touchscreen laptop.
 
 ## Difficulty and the case toggle
 

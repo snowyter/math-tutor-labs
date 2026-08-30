@@ -1,0 +1,17 @@
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.frac-n {
+  padding: 0 4px;
+  border-bottom: 1.5px solid currentColor;
+}
+
+.frac-d {
+  padding: 0 4px;
+}
