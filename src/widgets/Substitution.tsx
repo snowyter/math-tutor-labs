@@ -12,10 +12,14 @@ export function Substitution({ m, b }: { m: number; b: number }) {
   return (
     <div className="subst">
       <div className="subst-control">
-        <span className="subst-label">x</span>
-        <button onClick={() => setX((v) => v - 1)}>−</button>
+        <span className="subst-label">x =</span>
+        <button type="button" aria-label="Decrease x" onClick={() => setX((v) => v - 1)}>
+          −
+        </button>
         <span className="subst-value student-text">{x}</span>
-        <button onClick={() => setX((v) => v + 1)}>+</button>
+        <button type="button" aria-label="Increase x" onClick={() => setX((v) => v + 1)}>
+          +
+        </button>
       </div>
 
       <div className="subst-lines">
