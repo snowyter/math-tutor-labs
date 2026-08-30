@@ -41,6 +41,7 @@ export function DragNumberLine({
         viewBox="0 0 420 110"
         className="dnumberline-svg"
         onPointerDown={(e) => {
+          e.preventDefault();
           e.currentTarget.setPointerCapture(e.pointerId);
           setDragging(true);
           setValue(valueFromClient(e.clientX));
