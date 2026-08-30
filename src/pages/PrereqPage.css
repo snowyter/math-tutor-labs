@@ -29,6 +29,12 @@
   font-size: 30px;
 }
 
+.prereq-page-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .prereq-practice {
   display: flex;
   flex-direction: column;

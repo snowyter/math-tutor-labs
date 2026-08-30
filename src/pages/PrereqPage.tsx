@@ -7,7 +7,7 @@ import { BalanceScale } from '../widgets/BalanceScale';
 import { Substitution } from '../widgets/Substitution';
 import { PracticeSet } from '../widgets/PracticeSet';
 import { LABS } from '../engine/registry';
-import { goToLab } from '../shell/useHashRoute';
+import { goToLab, goToProgress } from '../shell/useHashRoute';
 import { useProgress } from '../shell/useProgress';
 import type { PrereqLesson, WidgetSpec } from '../engine/types';
 
@@ -47,9 +47,12 @@ export function PrereqPage({ lesson }: { lesson: PrereqLesson }) {
           <p className="prereq-page-kicker">Prerequisite</p>
           <h1 className="prereq-page-title">{lesson.title}</h1>
         </div>
-        <button className="primary" onClick={() => goToLab(LABS[0]!.id)}>
-          Back to lab
-        </button>
+        <div className="prereq-page-actions">
+          <button onClick={goToProgress}>All prerequisites</button>
+          <button className="primary" onClick={() => goToLab(LABS[0]!.id)}>
+            Back to lab
+          </button>
+        </div>
       </header>
 
       <Interactive widget={lesson.widget} />
