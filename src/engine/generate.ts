@@ -2,7 +2,7 @@ import { rat, isZero, isInteger, toNumber } from './rational';
 import { zeroFromEquation, yAt } from './math';
 import type { Level, TableKind, LinearExample, Point, Rational } from './types';
 
-function mulberry32(seed: number): () => number {
+export function makeRand(seed: number): () => number {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
@@ -95,6 +95,6 @@ export function generate(seed: number, level: Level, tableKind: TableKind): Line
   if (candidates.length === 0) {
     throw new Error(`generate: no candidates for ${level}/${tableKind}`);
   }
-  const pick = candidates[Math.floor(mulberry32(seed)() * candidates.length)]!;
+  const pick = candidates[Math.floor(makeRand(seed)() * candidates.length)]!;
   return exampleFrom(pick.m, pick.b, tableKind);
 }

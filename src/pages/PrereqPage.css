@@ -28,3 +28,16 @@
   margin: 4px 0 0;
   font-size: 30px;
 }
+
+.prereq-practice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.prereq-section-title {
+  margin: 0;
+  font-size: 20px;
+}

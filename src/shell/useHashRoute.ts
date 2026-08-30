@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react';
 
 export type Route =
   | { view: 'lab'; labId: string }
-  | { view: 'prereq'; lessonId: string };
+  | { view: 'prereq'; lessonId: string }
+  | { view: 'progress' };
 
 export function parseHash(hash: string, fallbackLabId: string): Route {
+  if (hash === '#/progress') return { view: 'progress' };
+
   const prereq = /^#\/prereq\/(.+)$/.exec(hash);
   if (prereq) return { view: 'prereq', lessonId: decodeURIComponent(prereq[1]!) };
 
@@ -32,4 +35,8 @@ export function goToLab(labId: string) {
 
 export function goToPrereq(lessonId: string) {
   window.location.hash = `#/prereq/${encodeURIComponent(lessonId)}`;
+}
+
+export function goToProgress() {
+  window.location.hash = '#/progress';
 }

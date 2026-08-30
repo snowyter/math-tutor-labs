@@ -14,9 +14,29 @@ export type LinearExample = {
   points: [Point, Point];
 };
 
+// A wrong answer the student is likely to give, and what to say about it.
+// `match` is parsed the same way as student input, so '3/2' also catches '1.5'.
+export type Mistake = { match: string; say: string };
+
 export type Answer =
-  | { kind: 'numeric'; prompt: string; correct: Rational | 'none' }
-  | { kind: 'choice'; prompt: string; options: string[]; correct: number };
+  | {
+      kind: 'numeric';
+      prompt: string;
+      correct: Rational | 'none';
+      mistakes?: Mistake[];
+      // Requires the reduced form, not merely an equal value. Needed where the
+      // form IS the skill — otherwise typing 6/9 back passes a simplify drill.
+      exact?: boolean;
+    }
+  | { kind: 'choice'; prompt: string; options: string[]; correct: number; mistakes?: Mistake[] };
+
+// A drill question is just an answer with its own generated feedback.
+export type DrillQuestion = Answer;
+
+export type Drill = {
+  length: number;
+  make(rand: () => number): DrillQuestion;
+};
 
 export type Step = { text: string; why?: string; answer?: Answer };
 
@@ -67,4 +87,17 @@ export type PrereqLesson = {
   title: string;
   widget?: WidgetSpec;
   steps: Step[];
+  drill?: Drill;
+};
+
+export type LessonProgress = {
+  attempts: number;
+  best: number;
+  last: number;
+  of: number;
+  updatedAt: number;
+};
+
+export type Progress = {
+  lessons: Record<string, LessonProgress>;
 };

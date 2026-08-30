@@ -57,3 +57,13 @@
   color: var(--ink-soft);
   font-size: 15px;
 }
+
+.answer-mistake {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--warn-bg);
+  border-left: 3px solid var(--warn-border);
+  border-radius: 4px;
+  color: #6b4a12;
+  font-size: 15px;
+}

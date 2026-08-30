@@ -5,8 +5,10 @@ import { DragNumberLine } from '../widgets/DragNumberLine';
 import { FractionBars, FractionCompare } from '../widgets/FractionBars';
 import { BalanceScale } from '../widgets/BalanceScale';
 import { Substitution } from '../widgets/Substitution';
+import { PracticeSet } from '../widgets/PracticeSet';
 import { LABS } from '../engine/registry';
 import { goToLab } from '../shell/useHashRoute';
+import { useProgress } from '../shell/useProgress';
 import type { PrereqLesson, WidgetSpec } from '../engine/types';
 
 function Interactive({ widget }: { widget?: WidgetSpec }) {
@@ -35,6 +37,9 @@ function Interactive({ widget }: { widget?: WidgetSpec }) {
 }
 
 export function PrereqPage({ lesson }: { lesson: PrereqLesson }) {
+  const { progress, record } = useProgress();
+  const done = progress.lessons[lesson.id];
+
   return (
     <div className="prereq-page">
       <header className="prereq-page-head">
@@ -50,6 +55,23 @@ export function PrereqPage({ lesson }: { lesson: PrereqLesson }) {
       <Interactive widget={lesson.widget} />
 
       <StepReveal key={lesson.id} steps={lesson.steps} />
+
+      {lesson.drill && (
+        <section className="prereq-practice">
+          <h2 className="prereq-section-title">Practice</h2>
+          {done ? (
+            <p className="soft">
+              {`Last time: ${done.last} of ${done.of}. Best so far: ${done.best} of ${done.of}.`}
+            </p>
+          ) : (
+            <p className="soft">Eight questions. Get them wrong as often as you like.</p>
+          )}
+          <PracticeSet
+            drill={lesson.drill}
+            onComplete={(score, of) => record(lesson.id, score, of)}
+          />
+        </section>
+      )}
     </div>
   );
 }

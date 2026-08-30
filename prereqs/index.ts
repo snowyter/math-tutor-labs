@@ -1,4 +1,5 @@
 import { rat } from '../src/engine/rational';
+import { DRILLS } from './drills';
 import type { PrereqLesson } from '../src/engine/types';
 
 const coordinatePlane: PrereqLesson = {
@@ -209,7 +210,7 @@ const divisionByZero: PrereqLesson = {
   ],
 };
 
-export const PREREQS: PrereqLesson[] = [
+const LESSONS: PrereqLesson[] = [
   coordinatePlane,
   readingAPoint,
   riseAndRunCounting,
@@ -221,3 +222,8 @@ export const PREREQS: PrereqLesson[] = [
   substitutingToCheck,
   divisionByZero,
 ];
+
+export const PREREQS: PrereqLesson[] = LESSONS.map((lesson) => ({
+  ...lesson,
+  drill: DRILLS[lesson.id],
+}));

@@ -1,6 +1,6 @@
 import { LabPicker } from './LabPicker';
 import { prereqById } from '../engine/registry';
-import { goToPrereq } from './useHashRoute';
+import { goToPrereq, goToProgress } from './useHashRoute';
 import type { Lab, Level, TableKind } from '../engine/types';
 
 export function Toolbar({
@@ -54,6 +54,8 @@ export function Toolbar({
       )}
 
       <button onClick={onNewExample}>New example</button>
+
+      <button onClick={goToProgress}>Progress</button>
 
       <label className="toolbar-item">
         <span className="toolbar-label">Prereq</span>

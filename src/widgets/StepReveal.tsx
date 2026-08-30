@@ -33,10 +33,20 @@ export function StepReveal({ steps }: { steps: Step[] }) {
             )}
 
             {answer && answer.kind === 'numeric' && (
-              <NumericInput prompt={answer.prompt} correct={answer.correct} />
+              <NumericInput
+                prompt={answer.prompt}
+                correct={answer.correct}
+                mistakes={answer.mistakes}
+                exact={answer.exact}
+              />
             )}
             {answer && answer.kind === 'choice' && (
-              <Choice prompt={answer.prompt} options={answer.options} correct={answer.correct} />
+              <Choice
+                prompt={answer.prompt}
+                options={answer.options}
+                correct={answer.correct}
+                mistakes={answer.mistakes}
+              />
             )}
           </div>
         );
