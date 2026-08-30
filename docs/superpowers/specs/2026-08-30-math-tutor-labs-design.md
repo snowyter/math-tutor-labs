@@ -10,14 +10,17 @@ The tutor manipulates the material and explains; the app is the visual aid, not 
 self-paced exercise system.
 
 This distinction drives every decision below. Features that serve independent
-student practice — accounts, saved progress, dashboards — are out of scope.
+*unsupervised* study — accounts, dashboards, syncing across devices — are out of
+scope. **Saved progress is not**, because the student this is built for is well
+behind and meets the tutor repeatedly; see "Practice, feedback, and progress".
 
 ## Locked decisions
 
 | Decision | Choice | Consequence |
 |---|---|---|
 | Scope | Framework for many labs | Adding a topic means adding a file, not writing code |
-| Teaching aid | Tutor drives, student watches and answers | No progress tracking, no accounts |
+| Teaching aid | Tutor drives, student watches and answers | No accounts, no cross-device sync |
+| Progress | Saved to `localStorage` per browser | Reverses an earlier "no persistence" decision — this student meets the tutor repeatedly |
 | Stack | Vite + React + TypeScript | Requires `npm install` and `npm run dev` |
 | Lab authoring | One data file per lab, rendered by shared widgets | Labs are data, not components |
 | Layout | Graph left (fixed), steps right | Graph never moves or scrolls mid-explanation |
@@ -232,6 +235,38 @@ re-authoring them.
 
 Dragging snaps to whole grid positions. Every interactive is pointer-based, so it
 works with a mouse, a trackpad, or a finger on a touchscreen laptop.
+
+## Practice, feedback, and progress
+
+Added 2026-08-30 for a student who is well behind and needs the prerequisites
+taught properly, not toured.
+
+**Practice drills.** Every prerequisite lesson carries a `Drill`: eight questions
+generated from a seeded RNG, new numbers on every attempt. `DrillQuestion` has the
+same shape as `Answer`, so the existing input and choice widgets render it
+unchanged. The student may retry a question freely; only the eventual result is
+recorded.
+
+**Mistake feedback.** A wrong answer names the likely error rather than saying
+"try again" — typing `3/2` for `2/3` gets *"That is run ÷ rise. Rise goes on
+top."* The misconceptions were already authored per section; they are now
+attached to the specific wrong values. Because drills generate their numbers,
+they generate their own mistake list alongside each question.
+
+Two invariants the tests enforce:
+- A mistake must never equal the correct answer, or the student is told they are
+  wrong when they are right.
+- For choice questions, every mistake must match an option that is actually
+  offered, or its feedback can never fire.
+
+**Exact mode.** `Answer.exact` requires the reduced form rather than merely an
+equal value. Needed for the simplifying-fractions drill: `6/9` and `2/3` are the
+same number, so without exact mode a student could pass by retyping the question.
+
+**Progress.** `localStorage` under `math-tutor-labs:progress:v1`. Per lesson:
+attempts, best score, last score. Shown on each prerequisite page and summarised
+at `#/progress`, which lists all ten with a bar per lesson. Browser-local only —
+not shared between devices, and no accounts.
 
 ## Difficulty and the case toggle
 
