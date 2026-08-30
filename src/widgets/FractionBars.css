@@ -1,0 +1,84 @@
+.fbars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.fbar {
+  display: flex;
+  width: 100%;
+  height: 46px;
+  border: 2px solid var(--axis);
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.fbar-cell {
+  flex: 1;
+  border-right: 1px solid var(--axis);
+  background: var(--panel);
+}
+
+.fbar-cell:last-child {
+  border-right: none;
+}
+
+.fbar-cell.is-shaded {
+  background: var(--c-line);
+}
+
+.fbars-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 20px;
+}
+
+.fbars-value {
+  min-width: 48px;
+  font-weight: 600;
+}
+
+.fbars-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.fbars-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.fbars-count {
+  min-width: 22px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.fbars-compare {
+  gap: 10px;
+}
+
+.fbars-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.fbars-tag {
+  min-width: 48px;
+  font-weight: 600;
+}
+
+.fbars-row .fbar {
+  height: 38px;
+}
+
+.fbars-note {
+  margin: 0;
+  font-size: 15px;
+}

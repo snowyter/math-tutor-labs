@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import './LabShell.css';
-import { LABS, prereqById, firstExample } from '../engine/registry';
+import { LABS, firstExample } from '../engine/registry';
 import { exampleFrom, generate } from '../engine/generate';
 import { Graph } from '../widgets/Graph';
 import { Table } from '../widgets/Table';
-import { NumberLine } from '../widgets/NumberLine';
 import { StepReveal } from '../widgets/StepReveal';
 import { Fraction } from '../widgets/Fraction';
-import { PrereqOverlay } from '../widgets/PrereqOverlay';
 import { Toolbar } from './Toolbar';
 import { WatchFor } from './WatchFor';
 import type { Level, TableKind, Rational, LinePreset } from '../engine/types';
@@ -21,7 +19,6 @@ export function LabShell() {
   const [b, setB] = useState(() => firstExample('gentle', 'includes-zero').b);
   const [presetIndex, setPresetIndex] = useState(0);
   const [tutorMode, setTutorMode] = useState(true);
-  const [openPrereqId, setOpenPrereqId] = useState<string | null>(null);
 
   const lab = LABS.find((l) => l.id === labId)!;
   const example = exampleFrom(m, b, tableKind);
@@ -52,8 +49,6 @@ export function LabShell() {
     setB(ex.b);
   }
 
-  const openPrereq = openPrereqId ? prereqById(openPrereqId) : undefined;
-
   return (
     <div className="shell">
       <Toolbar
@@ -70,7 +65,6 @@ export function LabShell() {
         showTableKind={section.id.startsWith('from-table')}
         onNewExample={() => rollExample(level, tableKind)}
         prereqIds={lab.prerequisites}
-        onOpenPrereq={setOpenPrereqId}
         tutorMode={tutorMode}
         onTutorMode={setTutorMode}
       />
@@ -129,10 +123,6 @@ export function LabShell() {
             </p>
           )}
 
-          {section.widget?.kind === 'numberLine' && (
-            <NumberLine from={section.widget.from} to={section.widget.to} />
-          )}
-
           <StepReveal key={section.id} steps={section.steps} />
 
           {tutorMode && section.watchFor && <WatchFor items={section.watchFor} />}
@@ -141,10 +131,6 @@ export function LabShell() {
           )}
         </div>
       </div>
-
-      {openPrereq && (
-        <PrereqOverlay lesson={openPrereq} onClose={() => setOpenPrereqId(null)} />
-      )}
     </div>
   );
 }

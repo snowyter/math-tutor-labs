@@ -1,0 +1,55 @@
+.subst {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subst-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subst-label {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-faint);
+}
+
+.subst-value {
+  min-width: 32px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.subst-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.subst-line {
+  margin: 0;
+}
+
+.subst-result {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-weight: 700;
+}
+
+.subst-result.is-zero,
+.subst-verdict {
+  color: var(--c-zero);
+}
+
+.subst-verdict {
+  margin: 0;
+  font-weight: 600;
+}

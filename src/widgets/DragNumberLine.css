@@ -1,0 +1,40 @@
+.dnumberline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dnumberline-svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  display: block;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.dnumberline-tick-label {
+  font-size: 12px;
+  fill: var(--ink-faint);
+}
+
+.dnumberline-marker {
+  cursor: grab;
+}
+
+.dnumberline-readout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.dnumberline-value {
+  color: var(--c-zero);
+  font-weight: 600;
+}
+
+.dnumberline-hint {
+  margin: 0;
+  font-size: 14px;
+}

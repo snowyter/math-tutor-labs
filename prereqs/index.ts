@@ -4,7 +4,7 @@ import type { PrereqLesson } from '../src/engine/types';
 const coordinatePlane: PrereqLesson = {
   id: 'coordinate-plane',
   title: 'The coordinate plane',
-  widget: { kind: 'graph', showTriangle: false, showZero: false },
+  widget: { kind: 'dragPlane', mode: 'free' },
   steps: [
     { text: 'The flat surface is crossed by two number lines.' },
     { text: 'The horizontal one is the x-axis. The vertical one is the y-axis.' },
@@ -29,7 +29,7 @@ const coordinatePlane: PrereqLesson = {
 const readingAPoint: PrereqLesson = {
   id: 'reading-a-point',
   title: 'Reading a point',
-  widget: { kind: 'graph', showTriangle: false, showZero: false },
+  widget: { kind: 'dragPlane', mode: 'target', target: { x: -2, y: 3 } },
   steps: [
     { text: 'A point is written (x, y) — x always first, then y.' },
     { text: 'The x number tells you how far across: right if positive, left if negative.' },
@@ -49,7 +49,7 @@ const readingAPoint: PrereqLesson = {
 const riseAndRunCounting: PrereqLesson = {
   id: 'rise-and-run-counting',
   title: 'Rise and run by counting',
-  widget: { kind: 'graph', showTriangle: true, showZero: false },
+  widget: { kind: 'dragRiseRun' },
   steps: [
     { text: 'Put your finger on the left-hand point.' },
     {
@@ -67,7 +67,7 @@ const riseAndRunCounting: PrereqLesson = {
 const subtractingNegatives: PrereqLesson = {
   id: 'subtracting-negatives',
   title: 'Subtracting negative numbers',
-  widget: { kind: 'numberLine', from: -10, to: 10 },
+  widget: { kind: 'dragNumberLine', from: -10, to: 10, start: -1 },
   steps: [
     { text: 'A number line goes up to the right and down to the left.' },
     { text: '-1 - 5 means: start at -1, then take 5 more steps to the left.' },
@@ -85,6 +85,7 @@ const subtractingNegatives: PrereqLesson = {
 const fractionsAsDivision: PrereqLesson = {
   id: 'fractions-as-division',
   title: 'A fraction is a division',
+  widget: { kind: 'fractionBars', parts: 4, shaded: 3 },
   steps: [
     { text: 'A fraction is a division that has not been worked out yet.' },
     { text: '2 over 3 means 2 divided by 3.' },
@@ -102,6 +103,11 @@ const fractionsAsDivision: PrereqLesson = {
 const simplifyingFractions: PrereqLesson = {
   id: 'simplifying-fractions',
   title: 'Simplifying fractions',
+  widget: {
+    kind: 'fractionCompare',
+    left: { parts: 6, shaded: 4 },
+    right: { parts: 3, shaded: 2 },
+  },
   steps: [
     { text: '4 over 6 and 2 over 3 are the same number.' },
     {
@@ -122,7 +128,7 @@ const simplifyingFractions: PrereqLesson = {
 const yEqualsZero: PrereqLesson = {
   id: 'y-equals-zero',
   title: 'What y = 0 means',
-  widget: { kind: 'graph', showTriangle: false, showZero: true },
+  widget: { kind: 'dragPlane', mode: 'free' },
   steps: [
     { text: 'Every point on the x-axis has a y-value of 0.' },
     {
@@ -144,6 +150,7 @@ const yEqualsZero: PrereqLesson = {
 const solvingTwoStep: PrereqLesson = {
   id: 'solving-two-step-equations',
   title: 'Solving a two-step equation',
+  widget: { kind: 'balanceScale', coefficient: 3, constant: 6 },
   steps: [
     { text: 'Take 0 = 3x + 6. We want x on its own.' },
     { text: 'Undo the +6 first: take 6 from both sides. That leaves -6 = 3x.' },
@@ -162,6 +169,7 @@ const solvingTwoStep: PrereqLesson = {
 const substitutingToCheck: PrereqLesson = {
   id: 'substituting-to-check',
   title: 'Checking by substituting back',
+  widget: { kind: 'substitution', m: 2, b: -8 },
   steps: [
     { text: 'To check whether x = -2 is the zero of y = 3x + 6, put -2 where x is.' },
     { text: 'y = 3 times -2, plus 6.' },
@@ -180,7 +188,7 @@ const substitutingToCheck: PrereqLesson = {
 const divisionByZero: PrereqLesson = {
   id: 'division-by-zero-undefined',
   title: 'Why division by zero is undefined',
-  widget: { kind: 'graph', showTriangle: false, showZero: false },
+  widget: { kind: 'dragVertical' },
   steps: [
     { text: 'Slope is rise over run.' },
     { text: 'For a straight vertical line, the run is 0 — it does not go across at all.' },
