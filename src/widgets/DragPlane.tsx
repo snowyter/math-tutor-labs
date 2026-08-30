@@ -3,7 +3,8 @@ import './DragPlane.css';
 import { rat, format } from '../engine/rational';
 import { slopeFromPoints } from '../engine/math';
 import { Fraction } from './Fraction';
-import { sx, sy } from './Graph';
+import { CoordinateTicks } from './CoordinateTicks';
+import { sx, sy } from './coordinates';
 import type { Point } from '../engine/types';
 
 const LO = -10;
@@ -73,6 +74,8 @@ export function DragPlane({ mode, target }: DragPlaneProps) {
 
         <line x1="10" y1={sy(0)} x2="410" y2={sy(0)} stroke="var(--axis)" strokeWidth="1.5" />
         <line x1={sx(0)} y1="10" x2={sx(0)} y2="410" stroke="var(--axis)" strokeWidth="1.5" />
+
+        <CoordinateTicks />
 
         {target && (
           <g>

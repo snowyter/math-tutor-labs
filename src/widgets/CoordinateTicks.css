@@ -1,0 +1,12 @@
+.coordinate-tick-label {
+  fill: var(--ink-faint);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  /* paint-order stroke draws the stroke under the fill, creating a
+     panel-colored halo so labels stay legible over grid lines and
+     plotted lines without background rectangles. */
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}

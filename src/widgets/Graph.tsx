@@ -2,18 +2,12 @@ import './Graph.css';
 import { toNumber, isZero, format, sub, rat } from '../engine/rational';
 import { zeroFromEquation, yAt } from '../engine/math';
 import { Fraction } from './Fraction';
+import { CoordinateTicks } from './CoordinateTicks';
+import { sx, sy } from './coordinates';
 import type { Rational } from '../engine/types';
 
 const LO = -10;
 const HI = 10;
-
-export function sx(x: number): number {
-  return 10 + (x + 10) * 20;
-}
-
-export function sy(y: number): number {
-  return 410 - (y + 10) * 20;
-}
 
 export function lineSegment(
   m: Rational,
@@ -67,6 +61,8 @@ export function Graph(props: GraphProps) {
 
         <line x1="10" y1={sy(0)} x2="410" y2={sy(0)} stroke="var(--axis)" strokeWidth="1.5" />
         <line x1={sx(0)} y1="10" x2={sx(0)} y2="410" stroke="var(--axis)" strokeWidth="1.5" />
+
+        <CoordinateTicks />
 
         {props.vertical && (
           <line
@@ -142,7 +138,7 @@ export function Graph(props: GraphProps) {
               stroke="var(--c-zero)"
               strokeWidth="2.5"
             />
-            <text className="graph-zero-label" x={sx(toNumber(zero)) + 12} y={sy(0) + 20}>
+            <text className="graph-zero-label" x={sx(toNumber(zero)) + 12} y={sy(0) - 8}>
               {`zero = ${format(zero)}`}
             </text>
           </g>

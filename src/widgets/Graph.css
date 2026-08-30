@@ -13,6 +13,10 @@
 .graph-zero-label {
   fill: var(--c-zero);
   font-size: 14px;
+  paint-order: stroke;
+  stroke: var(--panel);
+  stroke-width: 3px;
+  stroke-linejoin: round;
 }
 
 .graph-run-label {
