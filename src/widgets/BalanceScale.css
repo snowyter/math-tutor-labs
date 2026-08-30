@@ -5,7 +5,15 @@
 }
 
 .balance-equation {
+  align-self: center;
+  position: relative;
+  z-index: 1;
+  width: min(100%, 520px);
+  min-height: 36px;
   margin: 0;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: var(--panel);
   font-size: 24px;
   font-weight: 600;
   text-align: center;
@@ -25,10 +33,23 @@
   gap: 40px;
   width: 100%;
   max-width: 520px;
+  min-height: 84px;
+  height: auto;
+  background: transparent;
+  border-radius: 2px;
+  position: relative;
+}
+
+.balance-beam::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
   height: 4px;
   background: var(--axis);
   border-radius: 2px;
-  position: relative;
+  pointer-events: none;
 }
 
 .balance-pan {

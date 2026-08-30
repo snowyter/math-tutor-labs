@@ -29,10 +29,10 @@
 }
 
 .fbars-controls {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(48px, max-content) max-content max-content;
   align-items: center;
-  gap: 20px;
+  gap: 12px 20px;
 }
 
 .fbars-value {
@@ -64,17 +64,21 @@
 }
 
 .fbars-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(48px, max-content) minmax(0, 1fr);
   align-items: center;
   gap: 14px;
 }
 
 .fbars-tag {
   min-width: 48px;
+  justify-self: start;
   font-weight: 600;
 }
 
 .fbars-row .fbar {
+  width: auto;
+  min-width: 0;
   height: 38px;
 }
 

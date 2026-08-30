@@ -154,6 +154,7 @@
 
   .balance-beam {
     gap: 16px;
+    min-height: 72px;
   }
 
   .balance-pan {
@@ -166,13 +167,22 @@
   }
 
   .fbars-row {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
     gap: 6px;
   }
 
+  .fbars-tag {
+    min-width: 0;
+  }
+
+  .fbars-row .fbar {
+    width: 100%;
+  }
+
   .fbars-controls {
-    gap: 12px;
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .table {
