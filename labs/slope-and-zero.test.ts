@@ -175,6 +175,22 @@ describe('slope-recall', () => {
     }
   });
 
+  it('asks for the slope before any step prints it', () => {
+    // StepReveal keeps revealed steps on screen, so anything quoting m above
+    // the question turns the question into a copy-out.
+    for (const c of [
+      { m: rat(-3), b: rat(9) },
+      { m: rat(2), b: rat(-8) },
+    ]) {
+      const ex = exampleFrom(c.m, c.b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
+      const asked = s.steps.findIndex((st) => st.answer?.kind === 'numeric');
+      expect(asked).toBeGreaterThan(-1);
+      expect(s.steps.slice(0, asked).map((st) => st.text).join(' ')).not.toContain(format(ex.m));
+      expect(s.steps.slice(asked + 1).map((st) => st.text).join(' ')).toContain(format(ex.m));
+    }
+  });
+
   it('shows the slope triangle and asks for the example slope', () => {
     const ex = exampleFrom(rat(-3), rat(9), 'excludes-zero');
     const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;

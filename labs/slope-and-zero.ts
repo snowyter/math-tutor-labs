@@ -206,11 +206,14 @@ export function conceptSections(ex: LinearExample): Section[] {
           text: 'm is positive when the line goes up as you read left to right. It is negative when the line goes down.',
         },
         {
-          text: `Here m is ${format(ex.m)} — the line ${signPhrase(ex.m)}.`,
-        },
-        {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+        },
+        // Kept after the question on purpose: StepReveal leaves revealed steps
+        // on screen, so quoting m any earlier would hand over the answer.
+        {
+          text: `Here m is ${format(ex.m)} — the line ${signPhrase(ex.m)}.`,
+          why: 'Read the line left to right. That direction decides the sign.',
         },
       ],
       watchFor: [
