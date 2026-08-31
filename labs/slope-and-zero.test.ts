@@ -60,14 +60,32 @@ describe('slope lab: rise/run to coordinate-formula bridge', () => {
   });
 });
 
+function mikaSection(ex: ReturnType<typeof exampleFrom>) {
+  const s = sectionsFor(ex).find((x) => x.id === 'what-is-linear')!;
+  return { s, rows: (s.widget as Extract<WidgetSpec, { kind: 'table' }>).rows! };
+}
+
 describe('what-is-linear: the Mika opener', () => {
   it('opens with Mika losing 30 a day from 150', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
-    const s = sectionsFor(ex).find((x) => x.id === 'what-is-linear')!;
-    const rows = (s.widget as { rows?: { x: number; y: { n: number; d: number } }[] }).rows!;
-    expect(rows[0]!.y.n).toBe(150);
-    expect(rows[1]!.y.n).toBe(120);
-    expect(rows[5]!.y.n).toBe(0);
+    const { rows } = mikaSection(ex);
+    expect(rows.map((r) => r.y.n)).toEqual([150, 120, 90, 60, 30, 0]);
+    expect(rows.map((r) => r.x)).toEqual([0, 1, 2, 3, 4, 5]);
+  });
+
+  it('names the slope as -30, not 30', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const { s } = mikaSection(ex);
+    const naming = s.steps.find((st) => st.text.includes('Slope'))!.text;
+    expect(naming).toContain('-30');
+    expect(naming.toLowerCase()).toContain('down');
+    expect((s.watchFor ?? []).join(' ')).toContain('-30');
+  });
+
+  it('keeps the Mika numbers the same for every example', () => {
+    const one = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const other = exampleFrom(rat(-3), rat(7), 'excludes-zero');
+    expect(mikaSection(other).rows).toEqual(mikaSection(one).rows);
   });
 
   it('asks the handout three questions', () => {
@@ -99,6 +117,20 @@ describe('is-it-linear', () => {
     // constant change is linear; changing change is not
     expect(new Set(w.tables[0]!.changes).size).toBe(1);
     expect(new Set(w.tables[1]!.changes).size).toBeGreaterThan(1);
+  });
+
+  it('prints the change labels the rows actually give', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'is-it-linear')!;
+    const w = s.widget as Extract<WidgetSpec, { kind: 'tableCompare' }>;
+    for (const table of w.tables) {
+      // one label per gap between adjacent columns, derived from the rows
+      expect(table.changes).toHaveLength(table.rows.length - 1);
+      table.rows.slice(1).forEach((row, i) => {
+        const d = sub(row.y, table.rows[i]!.y);
+        expect(table.changes[i]).toBe(d.n < 0 ? format(d) : `+${format(d)}`);
+      });
+    }
   });
 
   it('asks which one is linear', () => {

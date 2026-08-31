@@ -58,8 +58,8 @@ export function foundationSections(): Section[] {
           answer: { kind: 'numeric', prompt: 'lost each day =', correct: rat(30) },
         },
         {
-          text: 'That 30 is the same every day. Slope is the change in the output for each 1 step across.',
-          why: 'Slope is a rate: so much per 1 step across, not a total.',
+          text: 'That 30 is lost every day, so the money goes down by 30. Slope is the change in the output for each 1 step across. Going down means the slope is -30.',
+          why: 'Slope is a rate, not a total. Down gives a negative slope. Up gives a positive one.',
         },
         {
           text: 'Is the change the same every day?',
@@ -78,14 +78,16 @@ export function foundationSections(): Section[] {
           text: 'That day is the Zero — the x that makes the output 0.',
           why: 'The zero is the x-value, not the point.',
         },
+        { text: 'A linear function graphs as a straight line.' },
         {
-          text: 'A linear function graphs as a straight line, has a constant rate of change, and has degree one or less.',
+          text: 'It has a constant rate of change.',
           why: 'If x changes by the same amount and f(x) also changes by the same amount, it is linear.',
         },
+        { text: 'Its degree is one or less.' },
         { text: 'The same function can be written three ways: an equation, a table, and a graph.' },
       ],
       watchFor: [
-        'Slope is the amount lost per day, not the total.',
+        'Slope is the change per day, not the total. Money going down means the slope is -30.',
         'The zero answers "when is it 0?", so it is a day number, not a money amount.',
       ],
     },
@@ -118,8 +120,8 @@ export function foundationSections(): Section[] {
       },
       steps: [
         {
-          text: 'Work out the change in f(x) between each pair of columns.',
-          why: 'Constant change means linear. Changing change means it is not.',
+          text: 'Read the change in f(x) between each pair of columns.',
+          why: 'Constant change means it is linear. A change that is not constant means it is not.',
         },
         {
           text: 'The first table changes by +2 every time, so it is linear. The second changes by +1, then +2, then +3, so it is not.',
