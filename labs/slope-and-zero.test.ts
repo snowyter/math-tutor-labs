@@ -159,6 +159,26 @@ describe('slope-recall', () => {
   });
 });
 
+describe('zero-of-a-function', () => {
+  it('defines the zero and where to find it', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'zero-of-a-function')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('f(x)=0');
+    expect(joined).toContain('crosses the x-axis');
+  });
+
+  it('separates the zero from the x-intercept', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'zero-of-a-function')!;
+    const choice = s.steps.map((st) => st.answer).find((a) => a?.kind === 'choice')!;
+    expect(choice.kind).toBe('choice');
+    if (choice.kind === 'choice') {
+      expect(choice.options[choice.correct]).toBe('x = 4');
+    }
+  });
+});
+
 describe('table widget can carry its own rows', () => {
   it('lets a section supply rows instead of using the example table', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');

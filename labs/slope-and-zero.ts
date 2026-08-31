@@ -177,6 +177,34 @@ export function conceptSections(ex: LinearExample): Section[] {
         'Read the run left to right. Reading it right to left flips the sign.',
       ],
     },
+    {
+      id: 'zero-of-a-function',
+      title: 'The zero of a function',
+      body: 'The zero is the value of x that makes the output equal to zero.',
+      widget: { kind: 'graph', showTriangle: false, showZero: true },
+      steps: [
+        { text: 'The zero of a function is the value of x that makes the output equal to zero.' },
+        { text: 'In a table, it is the x-value where f(x)=0.' },
+        { text: 'In a graph, it is the x-value where the line crosses the x-axis.' },
+        {
+          text: 'A line crosses the x-axis at (4, 0). The x-intercept is the point (4, 0), but the zero is the x-value 4.',
+          why: 'The zero is the x-value, not the point.',
+        },
+        {
+          text: 'A line crosses the x-axis at (4, 0). What is the zero?',
+          answer: {
+            kind: 'choice',
+            prompt: 'The zero is',
+            options: ['x = 4', 'the point (4, 0)', 'y = 4', '0'],
+            correct: 0,
+          },
+        },
+      ],
+      watchFor: [
+        'The zero is an x-value. The x-intercept is the point. The handout tests this distinction.',
+        'Say "x = 4", not "(4, 0)".',
+      ],
+    },
   ];
 }
 
