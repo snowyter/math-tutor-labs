@@ -343,6 +343,7 @@ export type MockExam = {
 };
 
 export type ExamResult = {
+  partId: string; // the answers map is namespaced by part — see gradeExam below
   item: ExamItem;
   student: string | null; // null = unanswered
   ok: boolean;
@@ -796,17 +797,7 @@ describe('gradeExam', () => {
 });
 ```
 
-This requires `gradeExam`'s `ExamScore.results` to carry `partId` (added above) and the `ExamScore`/`ExamResult` types in `exam.ts` to be:
-
-```ts
-export type ExamResult = {
-  partId: string;
-  item: ExamItem;
-  student: string | null; // null = unanswered
-  ok: boolean;
-  explain: string;
-};
-```
+The `ExamResult` type with `partId` shown in the grading function above is the authoritative one — the earlier type listing in this task already reflects it.
 
 - [ ] **Step 6: Run the full suite**
 
