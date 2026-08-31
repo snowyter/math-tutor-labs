@@ -52,7 +52,9 @@ export type ExamScore = {
 
 const PART_I_TABLES: Record<number, string[][]> = {
   1: [
-    ['A', 'B', 'C', 'D'],
+    // The leading empty cell keeps A–D over the four data columns, not over
+    // the x / f(x) row labels.
+    ['', 'A', 'B', 'C', 'D'],
     ['x', '0, 1, 2, 3', '−1, 0, 1, 2', '0, 1, 2, 3', '0, 1, 2, 3'],
     ['f(x)', '1, 2, 4, 7', '4, 6, 8, 10', '0, 1, 4, 9', '1, 1, 2, 2'],
   ],

@@ -47,6 +47,32 @@ describe('mock exam data integrity', () => {
       }
     }
   });
+
+  it('renders rectangular tables: every row has the same number of cells', () => {
+    // A ragged table misaligns in the browser — a 4-cell letter header over a
+    // 5-cell data grid puts each letter over the wrong table (found on item
+    // part-i-1, where ['A','B','C','D'] sat above ['x', …, …, …, …]).
+    for (const part of MOCK_EXAM.parts) {
+      for (const item of part.items) {
+        if (!item.table) continue;
+        const lens = item.table.map((row) => row.length);
+        expect(new Set(lens).size).toBe(1);
+      }
+    }
+  });
+
+  it('labels each exam table column with its choice letter', () => {
+    // Item part-i-1's options are Table A..D, so its table's column headers
+    // must read A, B, C, D over the four data columns — not over the row
+    // labels.
+    const item = MOCK_EXAM.parts[0]!.items.find((x) => x.n === 1)!;
+    expect(item.kind).toBe('choice');
+    if (item.kind === 'choice' && item.table) {
+      expect(item.table[0]).toEqual(['', 'A', 'B', 'C', 'D']);
+      expect(item.table[1]![0]).toBe('x');
+      expect(item.table[2]![0]).toBe('f(x)');
+    }
+  });
 });
 
 describe('gradeExam', () => {
