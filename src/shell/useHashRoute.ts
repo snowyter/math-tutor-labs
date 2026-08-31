@@ -6,7 +6,8 @@ export type PrereqParams = LabNumbers;
 export type Route =
   | { view: 'lab'; labId: string }
   | { view: 'prereq'; lessonId: string; params?: PrereqParams }
-  | { view: 'progress' };
+  | { view: 'progress' }
+  | { view: 'exam' };
 
 function readParams(query: string): PrereqParams | undefined {
   const sp = new URLSearchParams(query);
@@ -21,6 +22,7 @@ function readParams(query: string): PrereqParams | undefined {
 
 export function parseHash(hash: string, fallbackLabId: string): Route {
   if (hash === '#/progress') return { view: 'progress' };
+  if (hash === '#/exam') return { view: 'exam' };
 
   const prereq = /^#\/prereq\/([^?]+)(?:\?(.*))?$/.exec(hash);
   if (prereq) {
@@ -60,4 +62,8 @@ export function goToPrereq(lessonId: string, params?: PrereqParams) {
 
 export function goToProgress() {
   window.location.hash = '#/progress';
+}
+
+export function goToExam() {
+  window.location.hash = '#/exam';
 }

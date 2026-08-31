@@ -53,3 +53,13 @@ describe('parseHash prereq params', () => {
     expect(parsePrereq('#/prereq/y-equals-zero').lessonId).toBe('y-equals-zero');
   });
 });
+
+describe('parseHash exam route', () => {
+  it('parses #/exam to the exam view', () => {
+    expect(parseHash('#/exam', 'lab')).toEqual({ view: 'exam' });
+  });
+
+  it('does not treat #/examfoo as the exam route', () => {
+    expect(parseHash('#/examfoo', 'lab').view).toBe('lab');
+  });
+});
