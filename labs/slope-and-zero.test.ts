@@ -15,7 +15,7 @@ function tableSection(m: ReturnType<typeof rat>, b: ReturnType<typeof rat>, kind
 describe('slope lab: rate of change', () => {
   it('names slope as a rate of change where it is first defined', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
-    const defs = sectionsFor(ex).find((s) => s.id === 'definitions')!;
+    const defs = sectionsFor(ex).find((s) => s.id === 'slope-recall')!;
     expect(defs.body).toContain('rate of change');
   });
 });
@@ -139,6 +139,23 @@ describe('is-it-linear', () => {
     const choice = s.steps.map((st) => st.answer).find((a) => a?.kind === 'choice')!;
     expect(choice.kind).toBe('choice');
     if (choice.kind === 'choice') expect(choice.correct).toBe(0);
+  });
+});
+
+describe('slope-recall', () => {
+  it('states the slope formula', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('(y₂ − y₁)/(x₂ − x₁)');
+  });
+
+  it('explains the sign of m from the direction of the run', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('positive');
+    expect(joined).toContain('negative');
   });
 });
 

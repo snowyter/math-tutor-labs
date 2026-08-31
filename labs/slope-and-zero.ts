@@ -148,6 +148,38 @@ export function foundationSections(): Section[] {
   ];
 }
 
+export function conceptSections(ex: LinearExample): Section[] {
+  return [
+    {
+      id: 'slope-recall',
+      title: 'Slope',
+      body:
+        'Slope describes how steep a line is. It is the ratio of the vertical change to the horizontal change between two points. It is also called the rate of change.',
+      widget: { kind: 'graph', showTriangle: true, showZero: false },
+      steps: [
+        {
+          text: 'Slope is vertical change over horizontal change. It is written m.',
+          why: 'Vertical on top, horizontal on the bottom.',
+        },
+        { text: 'The vertical change is the rise. The horizontal change is the run.' },
+        {
+          text: 'Written with two points, that is (y₂ − y₁)/(x₂ − x₁).',
+          why: 'The y-difference is the rise, the x-difference is the run — same thing in symbols.',
+        },
+        { text: 'm is positive if the run goes to the right, and negative if it goes to the left.' },
+        {
+          text: 'What is the slope?',
+          answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+        },
+      ],
+      watchFor: [
+        'Rise goes on top and run on the bottom — students often divide the other way round.',
+        'Read the run left to right. Reading it right to left flips the sign.',
+      ],
+    },
+  ];
+}
+
 export function sectionsOneTwo(ex: LinearExample): Section[] {
   return [
     {
@@ -352,5 +384,10 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
 }
 
 export function sectionsFor(ex: LinearExample): Section[] {
-  return [...foundationSections(), ...sectionsOneTwo(ex), ...sectionsThreeFive(ex)];
+  return [
+    ...foundationSections(),
+    ...conceptSections(ex),
+    ...sectionsOneTwo(ex),
+    ...sectionsThreeFive(ex),
+  ];
 }
