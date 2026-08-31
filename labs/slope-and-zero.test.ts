@@ -630,4 +630,23 @@ describe('practice questions', () => {
       expect(prompts.some((p) => p.startsWith('zero'))).toBe(true);
     }
   });
+
+  it('does not make the string none the only accepted zero when the line is the x-axis', () => {
+    // m = 0, b = 0 is the x-axis: every x is a zero, and the copy says so.
+    // The zero question must agree — a choice whose correct answer is 'Every
+    // x is a zero' — not a numeric question that only accepts 'none'.
+    for (const kind of KINDS) {
+      for (const id of ['from-graph', 'from-equation', 'from-table']) {
+        const ex = exampleFrom(rat(0), rat(0), kind);
+        const s = sectionsFor(ex).find((x) => x.id === id)!;
+        const zeroStep = s.steps.find((st) =>
+          st.answer?.prompt.toLowerCase().includes('zero'),
+        )!;
+        expect(zeroStep.answer!.kind).toBe('choice');
+        if (zeroStep.answer!.kind === 'choice') {
+          expect(zeroStep.answer!.options[zeroStep.answer!.correct]).toBe('Every x is a zero');
+        }
+      }
+    }
+  });
 });

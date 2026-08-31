@@ -280,7 +280,6 @@ export function conceptSections(ex: LinearExample): Section[] {
 export function representationSections(ex: LinearExample): Section[] {
   const rows = ex.table;
   const zeroRowIndex = rows.findIndex((r) => isZero(r.y));
-  const zero = ex.zero ?? 'none';
 
   // The algebra route to the zero: work b out of y = mx + b over the table's
   // first row, printed as a full chain so nothing is skipped when read aloud.
@@ -307,6 +306,32 @@ export function representationSections(ex: LinearExample): Section[] {
   // single zero to read off.
   const hasZeroRow = zeroRowIndex >= 0;
   const flatNoZeroRow = flat && !hasZeroRow;
+
+  // The zero question. The slope slider reaches m = 0, and when b = 0 too the
+  // line IS the x-axis — every x is a zero — so demanding 'none' would deny
+  // what the copy beside the question says. That case asks as a choice
+  // instead. A flat line off the axis really has no zero, so 'none' stands
+  // there; every other case keeps the numeric x answer.
+  const zeroQuestion: Step = flat
+    ? isZero(ex.b)
+      ? {
+          text: 'What is the zero?',
+          answer: {
+            kind: 'choice',
+            prompt: 'The zero of this line is',
+            options: ['Every x is a zero', 'There is no zero', 'Only x = 0'],
+            correct: 0,
+          },
+        }
+      : {
+          text: 'What is the zero?',
+          answer: { kind: 'numeric', prompt: 'zero: x =', correct: 'none' },
+        }
+    : {
+        text: 'What is the zero?',
+        answer: { kind: 'numeric', prompt: 'zero: x =', correct: ex.zero! },
+      };
+
   const bTerm = bVal.n < 0 ? `− ${format(neg(bVal))}` : `+ ${format(bVal)}`;
   const zeroWorked = flat
     ? `0 = ${signedRat(ex.m)}x ${bTerm} → 0 = ${format(bVal)}`
@@ -350,10 +375,7 @@ export function representationSections(ex: LinearExample): Section[] {
             {
               text: 'For the slope, take any two columns. Rise is the change in y, run is the change in x.',
             },
-            {
-              text: 'What is the zero?',
-              answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
-            },
+            zeroQuestion,
             {
               text: 'What is the slope?',
               answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
@@ -422,10 +444,7 @@ export function representationSections(ex: LinearExample): Section[] {
                     why: 'Each 1 down is 1/m across. So x = the column x minus y over m.',
                   },
                 ]),
-            {
-              text: 'What is the zero?',
-              answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
-            },
+            zeroQuestion,
             // Kept below the question on purpose: StepReveal leaves revealed
             // steps on screen, so printing the zero here would hand it over.
             {
@@ -485,10 +504,7 @@ export function representationSections(ex: LinearExample): Section[] {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
         },
-        {
-          text: 'What is the zero?',
-          answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
-        },
+        zeroQuestion,
         {
           text: 'One special case: a straight vertical line has no run at all, so its slope is undefined — see Types of slope.',
         },
@@ -534,10 +550,7 @@ export function representationSections(ex: LinearExample): Section[] {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
         },
-        {
-          text: 'What is the zero?',
-          answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
-        },
+        zeroQuestion,
       ],
       watchFor: flat
         ? [
