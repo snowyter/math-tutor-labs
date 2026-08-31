@@ -60,6 +60,35 @@ describe('slope lab: rise/run to coordinate-formula bridge', () => {
   });
 });
 
+describe('what-is-linear: the Mika opener', () => {
+  it('opens with Mika losing 30 a day from 150', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'what-is-linear')!;
+    const rows = (s.widget as { rows?: { x: number; y: { n: number; d: number } }[] }).rows!;
+    expect(rows[0]!.y.n).toBe(150);
+    expect(rows[1]!.y.n).toBe(120);
+    expect(rows[5]!.y.n).toBe(0);
+  });
+
+  it('asks the handout three questions', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'what-is-linear')!;
+    const answers = s.steps.filter((st) => st.answer).map((st) => st.answer!);
+    // 30 lost per day, change is constant, zero on day 5
+    expect(answers[0]).toEqual({ kind: 'numeric', prompt: 'lost each day =', correct: rat(30) });
+    expect(answers[1]!.kind).toBe('choice');
+    expect(answers[2]).toEqual({ kind: 'numeric', prompt: 'day =', correct: rat(5) });
+  });
+
+  it('names slope and zero', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'what-is-linear')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('Slope');
+    expect(joined).toContain('Zero');
+  });
+});
+
 describe('table widget can carry its own rows', () => {
   it('lets a section supply rows instead of using the example table', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');

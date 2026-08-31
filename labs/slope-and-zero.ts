@@ -34,6 +34,64 @@ function bridgeText(rows: Point[]): string {
   );
 }
 
+// Fixed teaching numbers from the handout's opener — deliberately NOT
+// generated, so they match the worksheet the student has in front of them.
+const MIKA_ROWS: Point[] = [
+  { x: 0, y: rat(150) },
+  { x: 1, y: rat(120) },
+  { x: 2, y: rat(90) },
+  { x: 3, y: rat(60) },
+  { x: 4, y: rat(30) },
+  { x: 5, y: rat(0) },
+];
+
+export function foundationSections(): Section[] {
+  return [
+    {
+      id: 'what-is-linear',
+      title: 'What is a linear function?',
+      body: 'Mika has 150 in her wallet. She spends 30 each day for snacks.',
+      widget: { kind: 'table', highlightRows: [], rows: MIKA_ROWS },
+      steps: [
+        {
+          text: 'How much money is lost each day?',
+          answer: { kind: 'numeric', prompt: 'lost each day =', correct: rat(30) },
+        },
+        {
+          text: 'That 30 is the same every day. Slope is the change in the output for each 1 step across.',
+          why: 'Slope is a rate: so much per 1 step across, not a total.',
+        },
+        {
+          text: 'Is the change the same every day?',
+          answer: {
+            kind: 'choice',
+            prompt: 'The change is',
+            options: ['The same every day', 'Different each day'],
+            correct: 0,
+          },
+        },
+        {
+          text: 'On what day will Mika have 0 left?',
+          answer: { kind: 'numeric', prompt: 'day =', correct: rat(5) },
+        },
+        {
+          text: 'That day is the Zero — the x that makes the output 0.',
+          why: 'The zero is the x-value, not the point.',
+        },
+        {
+          text: 'A linear function graphs as a straight line, has a constant rate of change, and has degree one or less.',
+          why: 'If x changes by the same amount and f(x) also changes by the same amount, it is linear.',
+        },
+        { text: 'The same function can be written three ways: an equation, a table, and a graph.' },
+      ],
+      watchFor: [
+        'Slope is the amount lost per day, not the total.',
+        'The zero answers "when is it 0?", so it is a day number, not a money amount.',
+      ],
+    },
+  ];
+}
+
 export function sectionsOneTwo(ex: LinearExample): Section[] {
   return [
     {
@@ -238,5 +296,5 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
 }
 
 export function sectionsFor(ex: LinearExample): Section[] {
-  return [...sectionsOneTwo(ex), ...sectionsThreeFive(ex)];
+  return [...foundationSections(), ...sectionsOneTwo(ex), ...sectionsThreeFive(ex)];
 }
