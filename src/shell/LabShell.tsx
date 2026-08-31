@@ -104,7 +104,10 @@ export function LabShell() {
           </div>
 
           {section.widget?.kind === 'table' && (
-            <Table rows={example.table} highlightRows={section.widget.highlightRows} />
+            <Table
+              rows={section.widget.rows ?? example.table}
+              highlightRows={section.widget.highlightRows}
+            />
           )}
 
           {section.widget?.kind === 'walkToZero' && (

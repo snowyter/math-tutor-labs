@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { sectionsFor } from './slope-and-zero';
 import { exampleFrom } from '../src/engine/generate';
 import { rat, format, sub, div } from '../src/engine/rational';
-import type { TableKind } from '../src/engine/types';
+import type { TableKind, WidgetSpec } from '../src/engine/types';
 
 const KINDS: TableKind[] = ['includes-zero', 'excludes-zero'];
 
@@ -57,5 +57,20 @@ describe('slope lab: rise/run to coordinate-formula bridge', () => {
     const rise = sub(b.y, a.y);
     expect(div(rise, rat(b.x - a.x))).toEqual(ex.m);
     expect(joined).toContain(`= ${format(rise)}`);
+  });
+});
+
+describe('table widget can carry its own rows', () => {
+  it('lets a section supply rows instead of using the example table', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    // A section may declare rows so it can show fixed teaching numbers.
+    const spec: WidgetSpec = {
+      kind: 'table',
+      highlightRows: [],
+      rows: ex.table.slice(0, 2),
+    };
+    const rows = spec.kind === 'table' ? spec.rows : undefined;
+    expect(rows).toHaveLength(2);
+    expect(rows![0]!.x).toBe(ex.table[0]!.x);
   });
 });

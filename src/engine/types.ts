@@ -53,7 +53,7 @@ export type WidgetSpec =
   // lab widgets
   | { kind: 'graph'; showTriangle: boolean; showZero: boolean }
   | { kind: 'graphPreset'; presets: LinePreset[] }
-  | { kind: 'table'; highlightRows: number[] }
+  | { kind: 'table'; highlightRows: number[]; rows?: Point[] }
   | { kind: 'expression' }
   | { kind: 'walkToZero'; row: number }
   | { kind: 'zeroLine' }
