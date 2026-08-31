@@ -1,0 +1,109 @@
+.exam-page {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 24px 20px 64px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.exam-kicker {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+
+.exam-title {
+  margin: 0;
+  font-size: 26px;
+}
+
+.exam-table,
+.exam-mini {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.exam-mini {
+  max-width: 420px;
+}
+
+.exam-table th,
+.exam-table td,
+.exam-mini td {
+  border: 1px solid var(--line);
+  padding: 6px 8px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.exam-part {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.exam-part-title {
+  margin: 0;
+  font-size: 19px;
+}
+
+.exam-item {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+}
+
+.exam-item.is-ok {
+  border-color: var(--ok);
+}
+
+.exam-item.is-bad {
+  border-color: var(--bad);
+}
+
+.exam-n {
+  margin: 0 0 8px;
+}
+
+.exam-verdict {
+  margin: 0 0 4px;
+  font-weight: 600;
+}
+
+.exam-explain {
+  margin: 0;
+}
+
+.exam-hint {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.exam-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.exam-choices button.is-picked {
+  outline: 2px solid var(--c-line);
+  outline-offset: 1px;
+}
+
+.exam-numeric input {
+  width: 100%;
+  max-width: 280px;
+  min-height: 44px;
+  font-size: 17px;
+}
+
+.exam-guide summary {
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-weight: 600;
+}
