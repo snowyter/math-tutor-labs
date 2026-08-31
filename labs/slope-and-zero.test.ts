@@ -150,12 +150,37 @@ describe('slope-recall', () => {
     expect(joined).toContain('(y₂ − y₁)/(x₂ − x₁)');
   });
 
-  it('explains the sign of m from the direction of the run', () => {
+  it('names both signs of m when it states the rule', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
     const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
     const joined = s.steps.map((st) => st.text).join(' ');
     expect(joined).toContain('positive');
     expect(joined).toContain('negative');
+  });
+
+  it('reads the sign off the line, not off the run', () => {
+    const cases = [
+      { m: rat(-3), b: rat(9), goes: 'goes down', sign: 'negative' },
+      { m: rat(2), b: rat(-8), goes: 'goes up', sign: 'positive' },
+    ];
+    for (const c of cases) {
+      const ex = exampleFrom(c.m, c.b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
+      // the step that quotes this example's slope is the one that must classify it
+      const quoting = s.steps.map((st) => st.text).filter((t) => t.includes(format(ex.m)));
+      expect(quoting.length).toBeGreaterThan(0);
+      const line = quoting.join(' ');
+      expect(line).toContain(c.goes);
+      expect(line).toContain(c.sign);
+    }
+  });
+
+  it('shows the slope triangle and asks for the example slope', () => {
+    const ex = exampleFrom(rat(-3), rat(9), 'excludes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
+    expect(s.widget).toEqual({ kind: 'graph', showTriangle: true, showZero: false });
+    const asked = s.steps.map((st) => st.answer).find((a) => a?.kind === 'numeric');
+    expect(asked).toMatchObject({ kind: 'numeric', correct: ex.m });
   });
 });
 
@@ -176,6 +201,32 @@ describe('zero-of-a-function', () => {
     if (choice.kind === 'choice') {
       expect(choice.options[choice.correct]).toBe('x = 4');
     }
+  });
+
+  it('narrates the crossing the graph beside it actually shows', () => {
+    // zero is x = 6 here, so any hard-coded 4 would be visible
+    const ex = exampleFrom(rat(-1), rat(6), 'excludes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'zero-of-a-function')!;
+    expect(s.widget).toEqual({ kind: 'graph', showTriangle: false, showZero: true });
+    const z = format(ex.zero!);
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain(`(${z}, 0)`);
+    expect(joined).not.toContain('(4, 0)');
+    expect((s.watchFor ?? []).join(' ')).toContain(`x = ${z}`);
+    const choice = s.steps.map((st) => st.answer).find((a) => a?.kind === 'choice')!;
+    if (choice.kind === 'choice') {
+      expect(choice.options[choice.correct]).toBe(`x = ${z}`);
+    }
+  });
+
+  it('names no crossing when the line is flat', () => {
+    // m = 0 is reachable from the slope slider, and then there is no zero
+    const ex = exampleFrom(rat(0), rat(4), 'excludes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'zero-of-a-function')!;
+    expect(ex.zero).toBeNull();
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).not.toContain('(0, 0)');
+    expect(joined).toContain('no zero');
   });
 });
 

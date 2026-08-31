@@ -1,9 +1,18 @@
 import { rat, format, isZero, sub, div } from '../src/engine/rational';
-import type { LinearExample, Point, Rational, Section } from '../src/engine/types';
+import type { LinearExample, Point, Rational, Section, Step } from '../src/engine/types';
 
 function zeroText(ex: LinearExample): string {
   if (ex.zero === null) return 'no zero';
   return `x = ${format(ex.zero)}`;
+}
+
+// The sign of m comes from the direction of the LINE read left to right, not
+// from the run: read that way the run always points right, so it carries no sign.
+function signPhrase(m: Rational): string {
+  if (isZero(m)) return 'runs level as you read left to right, so the slope is zero';
+  return m.n < 0
+    ? 'goes down as you read left to right, so the slope is negative'
+    : 'goes up as you read left to right, so the slope is positive';
 }
 
 function signedInt(v: number): string {
@@ -149,6 +158,33 @@ export function foundationSections(): Section[] {
 }
 
 export function conceptSections(ex: LinearExample): Section[] {
+  // Both readings of the crossing come from the example so the words always
+  // match the line on screen: "x = 4" is the zero, "(4, 0)" the x-intercept.
+  // A flat line has no crossing at all — the slope slider can reach m = 0 — so
+  // say that instead of naming a point that is not there.
+  const z = ex.zero;
+  const zx = z === null ? '' : format(z);
+  const zPoint = `(${zx}, 0)`;
+  const zZero = zeroText(ex);
+  const crossingSteps: Step[] =
+    z === null
+      ? [{ text: ex.zeroNote ?? 'This line has no zero.' }]
+      : [
+          {
+            text: `This line crosses the x-axis at ${zPoint}. The x-intercept is the point ${zPoint}, but the zero is ${zZero} — the x-value on its own.`,
+            why: 'The zero is the x-value, not the point.',
+          },
+          {
+            text: `This line crosses the x-axis at ${zPoint}. What is the zero?`,
+            answer: {
+              kind: 'choice',
+              prompt: 'The zero is',
+              options: [zZero, `the point ${zPoint}`, `y = ${zx}`, '0'],
+              correct: 0,
+            },
+          },
+        ];
+
   return [
     {
       id: 'slope-recall',
@@ -166,7 +202,12 @@ export function conceptSections(ex: LinearExample): Section[] {
           text: 'Written with two points, that is (y₂ − y₁)/(x₂ − x₁).',
           why: 'The y-difference is the rise, the x-difference is the run — same thing in symbols.',
         },
-        { text: 'm is positive if the run goes to the right, and negative if it goes to the left.' },
+        {
+          text: 'm is positive when the line goes up as you read left to right. It is negative when the line goes down.',
+        },
+        {
+          text: `Here m is ${format(ex.m)} — the line ${signPhrase(ex.m)}.`,
+        },
         {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
@@ -174,7 +215,7 @@ export function conceptSections(ex: LinearExample): Section[] {
       ],
       watchFor: [
         'Rise goes on top and run on the bottom — students often divide the other way round.',
-        'Read the run left to right. Reading it right to left flips the sign.',
+        'Take the rise and the run in the same direction. Mixing the two is what flips the sign.',
       ],
     },
     {
@@ -186,23 +227,11 @@ export function conceptSections(ex: LinearExample): Section[] {
         { text: 'The zero of a function is the value of x that makes the output equal to zero.' },
         { text: 'In a table, it is the x-value where f(x)=0.' },
         { text: 'In a graph, it is the x-value where the line crosses the x-axis.' },
-        {
-          text: 'A line crosses the x-axis at (4, 0). The x-intercept is the point (4, 0), but the zero is the x-value 4.',
-          why: 'The zero is the x-value, not the point.',
-        },
-        {
-          text: 'A line crosses the x-axis at (4, 0). What is the zero?',
-          answer: {
-            kind: 'choice',
-            prompt: 'The zero is',
-            options: ['x = 4', 'the point (4, 0)', 'y = 4', '0'],
-            correct: 0,
-          },
-        },
+        ...crossingSteps,
       ],
       watchFor: [
         'The zero is an x-value. The x-intercept is the point. The handout tests this distinction.',
-        'Say "x = 4", not "(4, 0)".',
+        ...(z === null ? [] : [`Say "${zZero}", not "${zPoint}".`]),
       ],
     },
   ];
