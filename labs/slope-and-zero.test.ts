@@ -377,3 +377,25 @@ describe('from-table: two routes to the zero', () => {
     expect(last.text).toContain('same');
   });
 });
+
+describe('practice questions', () => {
+  it('has a question in each representation section', () => {
+    for (const kind of ['includes-zero', 'excludes-zero'] as TableKind[]) {
+      for (const id of ['from-graph', 'from-equation', 'from-table']) {
+        const ex = exampleFrom(rat(2), rat(-8), kind);
+        const s = sectionsFor(ex).find((x) => x.id === id)!;
+        expect(s.steps.some((st) => st.answer)).toBe(true);
+      }
+    }
+  });
+
+  it('asks for both slope and zero in each representation', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    for (const id of ['from-graph', 'from-equation', 'from-table']) {
+      const s = sectionsFor(ex).find((x) => x.id === id)!;
+      const prompts = s.steps.filter((st) => st.answer).map((st) => st.answer!.prompt);
+      expect(prompts.some((p) => p.startsWith('slope'))).toBe(true);
+      expect(prompts.some((p) => p.startsWith('zero'))).toBe(true);
+    }
+  });
+});
