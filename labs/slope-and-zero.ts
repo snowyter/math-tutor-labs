@@ -112,8 +112,8 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
           id: 'from-table-excludes',
           title: 'From a table with no y = 0',
           body:
-            'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then work it out.',
-          widget: { kind: 'table', highlightRows: [0, 1] },
+            'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then walk to it.',
+          widget: { kind: 'walkToZero', row: 0 },
           steps: [
             { text: 'There is no 0 in the y row, so the zero is not in the table.' },
             {
@@ -124,7 +124,10 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
               text: 'First find the slope from any two columns.',
               answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
             },
-            { text: 'Then use it: from any column, x = the column x minus y over m.' },
+            {
+              text: 'Now walk from the first row: come down to y = 0, sliding across as you go. Where you land is the zero.',
+              why: 'Each 1 down is 1/m across. So x = the column x minus y over m.',
+            },
             {
               text: 'What is the zero?',
               answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
@@ -133,6 +136,7 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
           watchFor: [
             'No y = 0 in the table does not mean there is no zero — the line still crosses, just between rows.',
             'Order matters here: find the slope first, then the zero.',
+            'A negative y means the zero sits to the right of that row; a positive y puts it to the left.',
           ],
         };
 
@@ -142,7 +146,7 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
       id: 'from-equation',
       title: 'From an equation',
       body: 'In y = mx + b, the slope and the y-intercept are both sitting in the equation.',
-      widget: { kind: 'expression' },
+      widget: { kind: 'zeroLine' },
       steps: [
         { text: 'm is the number multiplied by x — that is the slope.' },
         { text: 'b is the number on its own — where the line crosses the y-axis.' },
@@ -150,7 +154,7 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
           text: 'The zero is where y is 0, so solve 0 = mx + b.',
           why: 'Set y to 0 because the zero is where the line meets the x-axis.',
         },
-        { text: 'Take b off both sides, then divide by m. So x = -b/m.' },
+        { text: 'Take b off both sides, then divide by m. So x = -b/m. Watch the signs on the number line.' },
         {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
@@ -163,6 +167,7 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
       watchFor: [
         'm is the number times x, not the number on its own.',
         'The zero is negative b divided by m — the sign is the usual place it goes wrong.',
+        'When m is positive the zero sits on the opposite side of 0 from b; a negative m keeps it on the same side.',
       ],
     },
     {

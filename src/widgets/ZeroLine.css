@@ -1,0 +1,46 @@
+.zeroline {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zeroline-svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  display: block;
+}
+
+.zeroline-tick-label {
+  font-size: 12px;
+  fill: var(--ink-faint);
+}
+
+.zeroline-negb {
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--ink-soft);
+}
+
+.zeroline-zero {
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--c-zero);
+}
+
+.zeroline-caption {
+  margin: 0;
+}
+
+.zeroline-caption strong {
+  color: var(--c-zero);
+}
+
+.zeroline-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.zeroline-note {
+  margin: 0;
+}

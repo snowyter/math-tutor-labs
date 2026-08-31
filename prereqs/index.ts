@@ -1,6 +1,6 @@
 import { rat } from '../src/engine/rational';
 import { DRILLS } from './drills';
-import type { PrereqLesson } from '../src/engine/types';
+import type { LabNumbers, PrereqLesson } from '../src/engine/types';
 
 const coordinatePlane: PrereqLesson = {
   id: 'coordinate-plane',
@@ -148,43 +148,94 @@ const yEqualsZero: PrereqLesson = {
   ],
 };
 
-const solvingTwoStep: PrereqLesson = {
-  id: 'solving-two-step-equations',
-  title: 'Solving a two-step equation',
-  widget: { kind: 'balanceScale', coefficient: 3, constant: 6 },
-  steps: [
-    { text: 'Take 0 = 3x + 6. We want x on its own.' },
-    { text: 'Undo the +6 first: take 6 from both sides. That leaves -6 = 3x.' },
-    { text: 'Now undo the times-3: divide both sides by 3. That leaves -2 = x.' },
-    {
-      text: 'So x = -2.',
-      why: 'Undo the addition before the multiplication — you peel off the last layer first.',
-    },
-    {
-      text: 'Solve 0 = 2x + 8.',
-      answer: { kind: 'numeric', prompt: 'x =', correct: rat(-4) },
-    },
-  ],
-};
+function eqText(c: number, k: number): string {
+  return k < 0 ? `0 = ${c}x - ${Math.abs(k)}` : `0 = ${c}x + ${k}`;
+}
 
-const substitutingToCheck: PrereqLesson = {
-  id: 'substituting-to-check',
-  title: 'Checking by substituting back',
-  widget: { kind: 'substitution', m: 2, b: -8 },
-  steps: [
-    { text: 'To check whether x = -2 is the zero of y = 3x + 6, put -2 where x is.' },
-    { text: 'y = 3 times -2, plus 6.' },
-    { text: 'That is -6 plus 6, which is 0.' },
-    {
-      text: 'y came out as 0, so x = -2 really is the zero.',
-      why: 'The zero is the x that makes y come out as 0. So substitute and look for 0.',
-    },
-    {
-      text: 'Check x = 4 in y = 2x - 8. What is y?',
-      answer: { kind: 'numeric', prompt: 'y =', correct: rat(0) },
-    },
-  ],
-};
+// Both lessons need whole numbers with a whole zero and a positive
+// coefficient: the balance scale shows x-blocks, and the practice equation
+// stays readable.
+function lessonParams(p: LabNumbers): { m: number; b: number } | null {
+  if (!Number.isInteger(p.m) || !Number.isInteger(p.b)) return null;
+  if (p.m < 1 || p.b === 0) return null;
+  if (!Number.isInteger(-p.b / p.m)) return null;
+  return { m: p.m, b: p.b };
+}
+
+function solvingTwoStep(c: number, k: number): PrereqLesson {
+  const zero = -k / c;
+  const c2 = c + 1;
+  const k2 = 3 * c2;
+  const undoConstant =
+    k < 0
+      ? `Undo the -${Math.abs(k)} first: add ${Math.abs(k)} to both sides. That leaves ${Math.abs(k)} = ${c}x.`
+      : `Undo the +${k} first: take ${k} from both sides. That leaves ${-k} = ${c}x.`;
+  return {
+    id: 'solving-two-step-equations',
+    title: 'Solving a two-step equation',
+    widget: { kind: 'balanceScale', coefficient: c, constant: k },
+    steps: [
+      { text: `Take ${eqText(c, k)}. We want x on its own.` },
+      { text: undoConstant },
+      { text: `Now undo the times-${c}: divide both sides by ${c}. That leaves ${zero} = x.` },
+      {
+        text: `So x = ${zero}.`,
+        why: 'Undo the addition before the multiplication — you peel off the last layer first.',
+      },
+      {
+        text: `Solve 0 = ${c2}x + ${k2}.`,
+        answer: { kind: 'numeric', prompt: 'x =', correct: rat(-k2 / c2) },
+      },
+    ],
+  };
+}
+
+function substitutingToCheck(m: number, b: number): PrereqLesson {
+  const zero = -b / m;
+  const m2 = m + 1;
+  const b2 = 3 * m2;
+  const combine =
+    b < 0
+      ? `That is ${m * zero} - ${Math.abs(b)}, which is 0.`
+      : `That is ${m * zero} plus ${b}, which is 0.`;
+  return {
+    id: 'substituting-to-check',
+    title: 'Checking by substituting back',
+    widget: { kind: 'substitution', m, b },
+    steps: [
+      {
+        text: `To check whether x = ${zero} is the zero of y = ${m}x ${b < 0 ? '-' : '+'} ${Math.abs(b)}, put ${zero} where x is.`,
+      },
+      { text: `y = ${m} times ${zero}, ${b < 0 ? 'minus' : 'plus'} ${Math.abs(b)}.` },
+      { text: combine },
+      {
+        text: `y came out as 0, so x = ${zero} really is the zero.`,
+        why: 'The zero is the x that makes y come out as 0. So substitute and look for 0.',
+      },
+      {
+        text: `Check x = -3 in y = ${m2}x ${b2 < 0 ? '-' : '+'} ${Math.abs(b2)}. What is y?`,
+        answer: { kind: 'numeric', prompt: 'y =', correct: rat(0) },
+      },
+    ],
+  };
+}
+
+export function buildPrereq(id: string, params?: LabNumbers): PrereqLesson | undefined {
+  if (id === 'solving-two-step-equations') {
+    const p = params ? lessonParams(params) : null;
+    return attachDrill(p ? solvingTwoStep(p.m, p.b) : solvingTwoStep(3, 6));
+  }
+  if (id === 'substituting-to-check') {
+    const p = params ? lessonParams(params) : null;
+    return attachDrill(p ? substitutingToCheck(p.m, p.b) : substitutingToCheck(2, -8));
+  }
+  const lesson = LESSONS.find((l) => l.id === id);
+  return lesson ? attachDrill(lesson) : undefined;
+}
+
+function attachDrill(lesson: PrereqLesson): PrereqLesson {
+  return { ...lesson, drill: DRILLS[lesson.id] };
+}
 
 const divisionByZero: PrereqLesson = {
   id: 'division-by-zero-undefined',
@@ -218,12 +269,20 @@ const LESSONS: PrereqLesson[] = [
   fractionsAsDivision,
   simplifyingFractions,
   yEqualsZero,
-  solvingTwoStep,
-  substitutingToCheck,
   divisionByZero,
 ];
 
-export const PREREQS: PrereqLesson[] = LESSONS.map((lesson) => ({
-  ...lesson,
-  drill: DRILLS[lesson.id],
-}));
+const PREREQ_IDS = [
+  'coordinate-plane',
+  'reading-a-point',
+  'rise-and-run-counting',
+  'subtracting-negatives',
+  'fractions-as-division',
+  'simplifying-fractions',
+  'y-equals-zero',
+  'solving-two-step-equations',
+  'substituting-to-check',
+  'division-by-zero-undefined',
+] as const;
+
+export const PREREQS: PrereqLesson[] = PREREQ_IDS.map((id) => buildPrereq(id)!);

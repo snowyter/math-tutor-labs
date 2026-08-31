@@ -1,7 +1,7 @@
 import { LabPicker } from './LabPicker';
 import { prereqById } from '../engine/registry';
 import { goToPrereq, goToProgress } from './useHashRoute';
-import type { Lab, Level, TableKind } from '../engine/types';
+import type { Lab, LabNumbers, Level, TableKind } from '../engine/types';
 
 export function Toolbar({
   labs,
@@ -14,6 +14,7 @@ export function Toolbar({
   showTableKind,
   onNewExample,
   prereqIds,
+  exampleNumbers,
   tutorMode,
   onTutorMode,
 }: {
@@ -27,6 +28,7 @@ export function Toolbar({
   showTableKind: boolean;
   onNewExample: () => void;
   prereqIds: string[];
+  exampleNumbers?: LabNumbers;
   tutorMode: boolean;
   onTutorMode: (on: boolean) => void;
 }) {
@@ -62,7 +64,7 @@ export function Toolbar({
         <select
           value=""
           onChange={(e) => {
-            if (e.target.value) goToPrereq(e.target.value);
+            if (e.target.value) goToPrereq(e.target.value, exampleNumbers);
           }}
         >
           <option value="">Jump to…</option>

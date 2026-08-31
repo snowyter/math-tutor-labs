@@ -6,8 +6,11 @@ import { Graph } from '../widgets/Graph';
 import { Table } from '../widgets/Table';
 import { StepReveal } from '../widgets/StepReveal';
 import { Fraction } from '../widgets/Fraction';
+import { WalkToZero } from '../widgets/WalkToZero';
+import { ZeroLine } from '../widgets/ZeroLine';
 import { Toolbar } from './Toolbar';
 import { WatchFor } from './WatchFor';
+import { toNumber } from '../engine/rational';
 import type { Level, TableKind, Rational, LinePreset } from '../engine/types';
 
 export function LabShell() {
@@ -65,6 +68,7 @@ export function LabShell() {
         showTableKind={section.id.startsWith('from-table')}
         onNewExample={() => rollExample(level, tableKind)}
         prereqIds={lab.prerequisites}
+        exampleNumbers={{ m: toNumber(m), b: toNumber(b) }}
         tutorMode={tutorMode}
         onTutorMode={setTutorMode}
       />
@@ -101,6 +105,27 @@ export function LabShell() {
 
           {section.widget?.kind === 'table' && (
             <Table rows={example.table} highlightRows={section.widget.highlightRows} />
+          )}
+
+          {section.widget?.kind === 'walkToZero' && (
+            <>
+              <Table rows={example.table} highlightRows={[section.widget.row]} />
+              <WalkToZero
+                x0={example.table[section.widget.row]!.x}
+                y0={example.table[section.widget.row]!.y}
+                m={example.m}
+                zero={example.zero}
+              />
+            </>
+          )}
+
+          {section.widget?.kind === 'zeroLine' && (
+            <>
+              <p className="shell-expression student-text">
+                y = <Fraction value={m} />x + <Fraction value={b} />
+              </p>
+              <ZeroLine m={m} b={b} zero={example.zero} />
+            </>
           )}
 
           {section.widget?.kind === 'graphPreset' && (

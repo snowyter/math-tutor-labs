@@ -1,0 +1,51 @@
+.walktozero {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.walktozero-svg {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  display: block;
+}
+
+.walktozero-tick-label {
+  font-size: 12px;
+  fill: var(--ink-faint);
+}
+
+.walktozero-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.walktozero-readout p {
+  margin: 0;
+}
+
+.walktozero-rise {
+  color: var(--c-rise);
+  font-weight: 600;
+}
+
+.walktozero-run {
+  color: var(--c-run);
+  font-weight: 600;
+}
+
+.walktozero-zero {
+  color: var(--c-zero);
+  font-weight: 600;
+}
+
+.walktozero-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.walktozero-note {
+  margin: 0;
+}

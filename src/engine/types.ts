@@ -46,12 +46,17 @@ export type LinePreset =
 
 export type Parts = { parts: number; shaded: number };
 
+// Numbers handed from the lab's current example to a prerequisite lesson.
+export type LabNumbers = { m: number; b: number };
+
 export type WidgetSpec =
   // lab widgets
   | { kind: 'graph'; showTriangle: boolean; showZero: boolean }
   | { kind: 'graphPreset'; presets: LinePreset[] }
   | { kind: 'table'; highlightRows: number[] }
   | { kind: 'expression' }
+  | { kind: 'walkToZero'; row: number }
+  | { kind: 'zeroLine' }
   // prerequisite interactives — each is manipulable, never static
   | { kind: 'dragPlane'; mode: 'free' | 'target'; target?: { x: number; y: number } }
   | { kind: 'dragRiseRun' }

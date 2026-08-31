@@ -12,22 +12,27 @@ export function BalanceScale({
 }) {
   const [stage, setStage] = useState<Stage>(0);
 
-  const solved = constant / coefficient;
+  const value = -constant / coefficient;
+  const constPositive = constant > 0;
+  const absK = Math.abs(constant);
+
   const equation =
     stage === 0
-      ? `${coefficient}x + ${constant} = 0`
+      ? `0 = ${coefficient}x ${constPositive ? '+' : '-'} ${absK}`
       : stage === 1
         ? `${coefficient}x = ${-constant}`
-        : `x = ${-solved}`;
+        : `x = ${value}`;
 
   const leftBlocks =
     stage === 0
-      ? { xs: coefficient, units: constant }
+      ? { xs: coefficient, units: absK, unitClass: constPositive ? 'is-unit' : 'is-negative' }
       : stage === 1
-        ? { xs: coefficient, units: 0 }
-        : { xs: 1, units: 0 };
+        ? { xs: coefficient, units: 0, unitClass: 'is-unit' }
+        : { xs: 1, units: 0, unitClass: 'is-unit' };
 
-  const rightUnits = stage === 0 ? 0 : stage === 1 ? constant : Math.abs(Math.round(solved));
+  const rightUnits = stage === 0 ? 0 : stage === 1 ? absK : Math.abs(value);
+  const rightClass =
+    stage === 1 ? (constPositive ? 'is-negative' : 'is-unit') : value < 0 ? 'is-negative' : 'is-unit';
 
   return (
     <div className="balance">
@@ -43,7 +48,7 @@ export function BalanceScale({
                 </span>
               ))}
               {Array.from({ length: leftBlocks.units }, (_, i) => (
-                <span key={`u-${i}`} className="balance-block is-unit" />
+                <span key={`u-${i}`} className={`balance-block ${leftBlocks.unitClass}`} />
               ))}
             </div>
           </div>
@@ -52,7 +57,7 @@ export function BalanceScale({
             <div className="balance-blocks">
               {rightUnits > 0 &&
                 Array.from({ length: rightUnits }, (_, i) => (
-                  <span key={`r-${i}`} className="balance-block is-negative" />
+                  <span key={`r-${i}`} className={`balance-block ${rightClass}`} />
                 ))}
               {rightUnits === 0 && <span className="balance-zero">0</span>}
             </div>
@@ -65,7 +70,7 @@ export function BalanceScale({
       <div className="balance-actions">
         {stage === 0 && (
           <button className="primary" onClick={() => setStage(1)}>
-            {`Take ${constant} off both sides`}
+            {constPositive ? `Take ${constant} off both sides` : `Add ${absK} to both sides`}
           </button>
         )}
         {stage === 1 && (
@@ -73,9 +78,7 @@ export function BalanceScale({
             {`Split both sides into ${coefficient} groups`}
           </button>
         )}
-        {stage === 2 && (
-          <button onClick={() => setStage(0)}>Start again</button>
-        )}
+        {stage === 2 && <button onClick={() => setStage(0)}>Start again</button>}
       </div>
     </div>
   );

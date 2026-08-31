@@ -2,7 +2,8 @@ import { useState } from 'react';
 import './Substitution.css';
 
 export function Substitution({ m, b }: { m: number; b: number }) {
-  const [x, setX] = useState(4);
+  const zero = m === 0 ? NaN : -b / m;
+  const [x, setX] = useState(Number.isInteger(zero) ? zero : 0);
 
   const product = m * x;
   const y = product + b;

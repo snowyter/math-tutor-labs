@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { slopeFromPoints, zeroFromEquation, zeroFromTable, yAt } from './math';
+import { slopeFromPoints, zeroFromEquation, zeroFromTable, yAt, walkToZero } from './math';
 import { rat } from './rational';
 import type { Point } from './types';
 
@@ -45,4 +45,47 @@ describe('zeroFromTable', () => {
     expect(zeroFromTable(table, rat(0))).toBeNull();
   });
   it('returns null for an empty table', () => expect(zeroFromTable([], rat(2))).toBeNull());
+});
+
+describe('walkToZero', () => {
+  it('walks down from (x, 4) on a slope-2 line: 4 hops of -1/2, landing 2 left', () => {
+    const w = walkToZero(rat(4), rat(2));
+    expect(w).not.toBeNull();
+    expect(w!.rise).toEqual(rat(-4));
+    expect(w!.hops).toBe(4);
+    expect(w!.hopSize).toEqual(rat(-1, 2));
+    expect(w!.run).toEqual(rat(-2));
+  });
+  it('walks up from (x, -2) on a slope-2 line: 2 hops of 1/2, landing 1 right', () => {
+    const w = walkToZero(rat(-2), rat(2));
+    expect(w!.rise).toEqual(rat(2));
+    expect(w!.hops).toBe(2);
+    expect(w!.hopSize).toEqual(rat(1, 2));
+    expect(w!.run).toEqual(rat(1));
+  });
+  it('moves right for a negative slope', () => {
+    const w = walkToZero(rat(6), rat(-3));
+    expect(w!.hops).toBe(6);
+    expect(w!.hopSize).toEqual(rat(1, 3));
+    expect(w!.run).toEqual(rat(2));
+  });
+  it('handles a fractional slope', () => {
+    const w = walkToZero(rat(3), rat(1, 2));
+    expect(w!.hops).toBe(3);
+    expect(w!.hopSize).toEqual(rat(-2));
+    expect(w!.run).toEqual(rat(-6));
+  });
+  it('gives no hops when the y-value is fractional', () => {
+    const w = walkToZero(rat(3, 2), rat(2));
+    expect(w).not.toBeNull();
+    expect(w!.hops).toBeNull();
+    expect(w!.rise).toEqual(rat(-3, 2));
+    expect(w!.run).toEqual(rat(-3, 4));
+  });
+  it('handles y0 = 0 with no hops', () => {
+    const w = walkToZero(rat(0), rat(2));
+    expect(w!.hops).toBe(0);
+    expect(w!.run).toEqual(rat(0));
+  });
+  it('returns null for a zero slope', () => expect(walkToZero(rat(4), rat(0))).toBeNull());
 });

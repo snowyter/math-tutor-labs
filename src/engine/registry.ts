@@ -1,7 +1,7 @@
 import { generate } from './generate';
 import { sectionsFor } from '../../labs/slope-and-zero';
-import { PREREQS } from '../../prereqs';
-import type { Lab, Level, TableKind, LinearExample, PrereqLesson } from './types';
+import { buildPrereq, PREREQS } from '../../prereqs';
+import type { Lab, LabNumbers, Level, TableKind, LinearExample, PrereqLesson } from './types';
 
 export const slopeAndZero: Lab = {
   id: 'slope-and-zero',
@@ -18,8 +18,8 @@ export const LABS: Lab[] = [slopeAndZero];
 
 export const PREREQ_LESSONS: PrereqLesson[] = PREREQS;
 
-export function prereqById(id: string): PrereqLesson | undefined {
-  return PREREQ_LESSONS.find((p) => p.id === id);
+export function prereqById(id: string, params?: LabNumbers): PrereqLesson | undefined {
+  return buildPrereq(id, params);
 }
 
 export function firstExample(level: Level, tableKind: TableKind): LinearExample {

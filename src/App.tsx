@@ -10,7 +10,7 @@ export default function App() {
   if (route.view === 'progress') return <ProgressPage />;
 
   if (route.view === 'prereq') {
-    const lesson = prereqById(route.lessonId);
+    const lesson = prereqById(route.lessonId, route.params);
     if (lesson) return <PrereqPage lesson={lesson} />;
   }
 
