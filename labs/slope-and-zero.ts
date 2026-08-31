@@ -327,7 +327,8 @@ export function representationSections(ex: LinearExample): Section[] {
               : 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
           widget: {
             kind: 'table',
-            highlightRows: [zeroRowIndex, Math.min(zeroRowIndex + 1, rows.length - 1)],
+            highlightRows:
+              zeroRowIndex >= 0 ? [zeroRowIndex, Math.min(zeroRowIndex + 1, rows.length - 1)] : [],
           },
           steps: [
             flat
@@ -440,16 +441,14 @@ export function representationSections(ex: LinearExample): Section[] {
                 // the flat line's own case is the conclusion: no zero, or every x
                 (flat ? ` ${flatNote}` : ''),
               why: flat
-                ? 'Finding the zero means dividing by m, and here m is 0 — you cannot divide by 0.'
+                ? `With m = 0, the equation has no x term, so ${flatNote}`
                 : 'Take b off both sides first, then divide by m.',
             },
             // One closing line for the two cases. It must not name a zero,
             // since a flat line has none — and where the walk has just been
             // ruled out it must not send the student back to it either.
             flat
-              ? {
-                  text: 'Both ways agree. Here there is no walk, so the algebra is the one that answers.',
-                }
+              ? { text: 'There is no walk on a flat line, so the algebra is the one that answers.' }
               : { text: 'Both ways agree. Use the walk to see it, the algebra to work it out.' },
           ],
           watchFor: flat

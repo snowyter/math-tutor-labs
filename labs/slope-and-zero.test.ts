@@ -503,66 +503,55 @@ describe('from-table: two routes to the zero', () => {
     }
   });
 
-  it('states both routes agree without assuming a unique zero', () => {
+  it('states both routes agree for a non-flat line', () => {
     for (const c of [
       { m: rat(2), b: rat(-8) },
       { m: rat(-3), b: rat(9) },
-      { m: rat(0), b: rat(4) },
-      { m: rat(0), b: rat(0) },
+      { m: rat(3, 4), b: rat(-2) },
     ]) {
       const ex = exampleFrom(c.m, c.b, 'excludes-zero');
       const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
       const joined = s.steps.map((st) => st.text).join(' ');
-      const last = s.steps[s.steps.length - 1]!;
-      const said = last.text.toLowerCase();
-      // Both routes are presented as agreeing, but a flat line has no walk.
-      expect(said).toContain('agree');
-      expect(said).toContain('algebra');
-      if (ex.zero === null) {
-        expect(said).not.toContain('same zero');
-        expect(said).not.toContain('use the walk');
-      } else {
-        expect(said).toContain('walk');
-        expect(joined).toContain(`x = ${format(ex.zero)}`);
-      }
+      const last = s.steps[s.steps.length - 1]!.text.toLowerCase();
+      expect(ex.zero).not.toBeNull();
+      expect(last).toContain('agree');
+      expect(last).toContain('walk');
+      expect(last).toContain('algebra');
+      expect(joined).toContain(`x = ${format(ex.zero!)}`);
     }
   });
 
-  it('says nothing false when the line is flat', () => {
-    // m = 0 is reachable from the slope slider. Then there is no zero, and
-    // div() throws on a zero denominator, so the copy has to branch on it.
+  it('keeps flat copy honest for both flat cases', () => {
+    // m = 0 is reachable from the slope slider. Then there is no single zero,
+    // and div() must never be reached with m as its denominator.
     for (const b of [rat(4), rat(0)]) {
       const ex = exampleFrom(rat(0), b, 'excludes-zero');
       const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
       expect(ex.zero).toBeNull();
       const texts = s.steps.map((st) => st.text);
-      const whys = s.steps.map((st) => st.why ?? '').join(' ');
-      const joined = texts.join(' ');
-      // no zero exists, so nothing may claim one or tell the tutor to divide by m
-      expect(whys).not.toContain('divide by m');
-      expect(joined).not.toContain('→ x =');
-      expect(joined).not.toContain('just between the rows');
-      // the walk is ruled out in the steps, so it cannot be held out above them
-      expect(s.body).not.toContain('walk to it');
-      // the flat line's own equation is still worked, and its case is named
-      expect(joined).toContain('This line is flat');
-      expect(joined).toContain('0 = 0x');
-      expect(texts.some((t) => t.includes(ex.zeroNote!))).toBe(true);
-      expect((s.watchFor ?? []).join(' ')).toContain(ex.zeroNote!);
+      const copy = [
+        s.body,
+        ...(s.watchFor ?? []),
+        ...s.steps.flatMap((st) => [st.text, st.why ?? '']),
+      ].join(' ');
+      const last = texts[texts.length - 1]!.toLowerCase();
+      expect(copy).not.toMatch(/divid(e|ing) by m/i);
+      expect(last).not.toMatch(/both ways agree/i);
+      expect(last).not.toContain('use the walk');
+      expect(copy).toContain(ex.zeroNote!);
+      expect(copy).not.toContain('→ x =');
+      expect(copy).not.toContain('just between the rows');
     }
   });
 
-  it('does not send the student on a walk the flat line has no slope for', () => {
-    // The walk step calls the walk off; the closing line must not offer it back
-    // as a way of seeing a zero that is not there.
+  it('works the flat equation without claiming a walk or a zero', () => {
     for (const b of [rat(4), rat(0)]) {
       const ex = exampleFrom(rat(0), b, 'excludes-zero');
       const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
-      const last = s.steps[s.steps.length - 1]!.text.toLowerCase();
-      // the two routes are still put forward as agreeing...
-      expect(last).toMatch(/agree|same/);
-      // ...but the walk is not held out as the way to see it
-      expect(last).not.toContain('use the walk');
+      const joined = s.steps.map((st) => st.text).join(' ');
+      expect(joined).toContain('This line is flat');
+      expect(joined).toContain('0 = 0x');
+      expect(joined).toContain(ex.zeroNote!);
     }
   });
 
@@ -600,6 +589,12 @@ describe('from-table: the includes-zero branch when the line is flat', () => {
     expect(joined).not.toContain('The x above it is the zero');
     expect(joined).not.toContain('no zero');
     expect(joined).toContain(ex.zeroNote!);
+  });
+
+  it('does not highlight an arbitrary row when a flat table has no zero row', () => {
+    const offAxis = exampleFrom(rat(0), rat(4), 'includes-zero');
+    const section = sectionsFor(offAxis).find((x) => x.id === 'from-table')!;
+    expect(section.widget).toEqual({ kind: 'table', highlightRows: [] });
   });
 });
 
