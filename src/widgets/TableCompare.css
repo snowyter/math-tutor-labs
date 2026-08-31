@@ -1,0 +1,18 @@
+.tcompare {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.tcompare-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tcompare-changes {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}

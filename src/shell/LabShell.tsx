@@ -4,6 +4,7 @@ import { LABS, firstExample } from '../engine/registry';
 import { exampleFrom, generate } from '../engine/generate';
 import { Graph } from '../widgets/Graph';
 import { Table } from '../widgets/Table';
+import { TableCompare } from '../widgets/TableCompare';
 import { StepReveal } from '../widgets/StepReveal';
 import { Fraction } from '../widgets/Fraction';
 import { WalkToZero } from '../widgets/WalkToZero';
@@ -108,6 +109,10 @@ export function LabShell() {
               rows={section.widget.rows ?? example.table}
               highlightRows={section.widget.highlightRows}
             />
+          )}
+
+          {section.widget?.kind === 'tableCompare' && (
+            <TableCompare tables={section.widget.tables} />
           )}
 
           {section.widget?.kind === 'walkToZero' && (

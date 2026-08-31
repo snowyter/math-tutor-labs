@@ -54,6 +54,7 @@ export type WidgetSpec =
   | { kind: 'graph'; showTriangle: boolean; showZero: boolean }
   | { kind: 'graphPreset'; presets: LinePreset[] }
   | { kind: 'table'; highlightRows: number[]; rows?: Point[] }
+  | { kind: 'tableCompare'; tables: { rows: Point[]; changes: string[] }[] }
   | { kind: 'expression' }
   | { kind: 'walkToZero'; row: number }
   | { kind: 'zeroLine' }
