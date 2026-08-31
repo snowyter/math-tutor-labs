@@ -246,6 +246,73 @@ describe('zero-of-a-function', () => {
   });
 });
 
+describe('section sequence', () => {
+  it('follows the handout order', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    expect(sectionsFor(ex).map((s) => s.id)).toEqual([
+      'what-is-linear',
+      'is-it-linear',
+      'slope-recall',
+      'types-of-slope',
+      'zero-of-a-function',
+      'from-graph',
+      'from-equation',
+      'from-table',
+    ]);
+  });
+
+  it('has no definitions section any more', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const ids = sectionsFor(ex).map((s) => s.id);
+    expect(ids).not.toContain('definitions');
+    // the table section carries one id whichever kind of table it shows
+    expect(ids.filter((id) => id.startsWith('from-table'))).toEqual(['from-table']);
+  });
+
+  it('keeps the handout order when the table has no y = 0', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'excludes-zero');
+    expect(sectionsFor(ex).map((s) => s.id)).toEqual([
+      'what-is-linear',
+      'is-it-linear',
+      'slope-recall',
+      'types-of-slope',
+      'zero-of-a-function',
+      'from-graph',
+      'from-equation',
+      'from-table',
+    ]);
+  });
+});
+
+describe('reading direction does not flip the sign', () => {
+  // Reversing the reading direction negates the rise AND the run, so rise/run
+  // is unchanged. A note claiming otherwise would teach a false rule.
+  for (const id of ['slope-recall', 'types-of-slope']) {
+    it(`${id} makes no such claim`, () => {
+      const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === id)!;
+      const prose = (s.watchFor ?? []).join(' ');
+      expect(prose).not.toContain('right to left');
+    });
+  }
+
+  it('slope-recall still names the real cause of a flipped sign', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'slope-recall')!;
+    expect((s.watchFor ?? []).join(' ')).toContain('same direction');
+  });
+});
+
+describe('from-graph', () => {
+  it('points at Types of slope for the vertical case', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-graph')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('undefined');
+    expect(joined).toContain('Types of slope');
+  });
+});
+
 describe('table widget can carry its own rows', () => {
   it('lets a section supply rows instead of using the example table', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');

@@ -222,50 +222,6 @@ export function conceptSections(ex: LinearExample): Section[] {
       ],
     },
     {
-      id: 'zero-of-a-function',
-      title: 'The zero of a function',
-      body: 'The zero is the value of x that makes the output equal to zero.',
-      widget: { kind: 'graph', showTriangle: false, showZero: true },
-      steps: [
-        { text: 'The zero of a function is the value of x that makes the output equal to zero.' },
-        { text: 'In a table, it is the x-value where f(x)=0.' },
-        { text: 'In a graph, it is the x-value where the line crosses the x-axis.' },
-        ...crossingSteps,
-      ],
-      watchFor: [
-        'The zero is an x-value. The x-intercept is the point. The handout tests this distinction.',
-        ...(z === null ? [] : [`Say "${zZero}", not "${zPoint}".`]),
-      ],
-    },
-  ];
-}
-
-export function sectionsOneTwo(ex: LinearExample): Section[] {
-  return [
-    {
-      id: 'definitions',
-      title: 'What slope and zero mean',
-      body:
-        'Slope measures how steep a line is: rise over run. It is also called the rate of change. The zero is where the line crosses the x-axis — the place where y is 0.',
-      widget: { kind: 'graph', showTriangle: true, showZero: true },
-      steps: [
-        {
-          text: 'Slope is rise over run — how far up, divided by how far across.',
-          why: 'Rise goes on top. Run goes on the bottom.',
-        },
-        { text: 'Move the slope slider and watch the rise and the run both change.' },
-        { text: 'The zero is the x-value where the line reaches y = 0.' },
-        {
-          text: 'Read the slope off the line shown.',
-          answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
-        },
-      ],
-      watchFor: [
-        'Rise goes on top and run on the bottom — students often divide the other way round.',
-        `The zero is an x-value, not a point. Say "${zeroText(ex)}", not a coordinate pair.`,
-      ],
-    },
-    {
       id: 'types-of-slope',
       title: 'Types of slope',
       body: 'Four kinds of line. Pick one and look at it.',
@@ -296,15 +252,31 @@ export function sectionsOneTwo(ex: LinearExample): Section[] {
           },
         },
       ],
+      // No reading-direction note here: reversing the direction negates the
+      // rise and the run both, so rise/run does not change. Slope-recall sits
+      // just above and names the real cause of a flipped sign.
+      watchFor: ['Zero slope and undefined slope are different things: flat versus vertical.'],
+    },
+    {
+      id: 'zero-of-a-function',
+      title: 'The zero of a function',
+      body: 'The zero is the value of x that makes the output equal to zero.',
+      widget: { kind: 'graph', showTriangle: false, showZero: true },
+      steps: [
+        { text: 'The zero of a function is the value of x that makes the output equal to zero.' },
+        { text: 'In a table, it is the x-value where f(x)=0.' },
+        { text: 'In a graph, it is the x-value where the line crosses the x-axis.' },
+        ...crossingSteps,
+      ],
       watchFor: [
-        'Zero slope and undefined slope are different things: flat versus vertical.',
-        'Read the slope left to right. Reading it right to left flips the sign.',
+        'The zero is an x-value. The x-intercept is the point. The handout tests this distinction.',
+        ...(z === null ? [] : [`Say "${zZero}", not "${zPoint}".`]),
       ],
     },
   ];
 }
 
-export function sectionsThreeFive(ex: LinearExample): Section[] {
+export function representationSections(ex: LinearExample): Section[] {
   const rows = ex.table;
   const zeroRowIndex = rows.findIndex((r) => isZero(r.y));
   const zero = ex.zero ?? 'none';
@@ -312,7 +284,7 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
   const tableSection: Section =
     ex.tableKind === 'includes-zero'
       ? {
-          id: 'from-table-includes',
+          id: 'from-table',
           title: 'From a table that includes y = 0',
           body: 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
           widget: {
@@ -348,7 +320,7 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
           ],
         }
       : {
-          id: 'from-table-excludes',
+          id: 'from-table',
           title: 'From a table with no y = 0',
           body:
             'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then walk to it.',
@@ -384,7 +356,37 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
         };
 
   return [
-    tableSection,
+    {
+      id: 'from-graph',
+      title: 'From a graph',
+      body: 'Read the slope and the zero straight off the picture.',
+      widget: { kind: 'graph', showTriangle: true, showZero: true },
+      steps: [
+        { text: 'Find two points on the line that sit exactly on grid corners.' },
+        { text: 'Count squares up or down between them — that is the rise.' },
+        { text: 'Count squares across — that is the run.' },
+        { text: 'Slope is rise over run.', why: 'Rise on top, run on the bottom.' },
+        {
+          text: 'Follow the line down to where it crosses the x-axis. That x is the zero.',
+        },
+        {
+          text: 'What is the slope?',
+          answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+        },
+        {
+          text: 'What is the zero?',
+          answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
+        },
+        {
+          text: 'One special case: a straight vertical line has no run at all, so its slope is undefined — see Types of slope.',
+          why: 'Undefined is not the same as zero. Zero is flat, undefined is vertical.',
+        },
+      ],
+      watchFor: [
+        'Pick points on grid corners. Points elsewhere give fractions that are hard to count.',
+        'The zero is where it crosses the x-axis, not the y-axis.',
+      ],
+    },
     {
       id: 'from-equation',
       title: 'From an equation',
@@ -413,41 +415,10 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
         'When m is positive the zero sits on the opposite side of 0 from b; a negative m keeps it on the same side.',
       ],
     },
-    {
-      id: 'from-graph',
-      title: 'From a graph',
-      body: 'Read the slope and the zero straight off the picture.',
-      widget: { kind: 'graph', showTriangle: true, showZero: true },
-      steps: [
-        { text: 'Find two points on the line that sit exactly on grid corners.' },
-        { text: 'Count squares up or down between them — that is the rise.' },
-        { text: 'Count squares across — that is the run.' },
-        { text: 'Slope is rise over run.', why: 'Rise on top, run on the bottom.' },
-        {
-          text: 'Follow the line down to where it crosses the x-axis. That x is the zero.',
-        },
-        {
-          text: 'What is the slope?',
-          answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
-        },
-        {
-          text: 'What is the zero?',
-          answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
-        },
-      ],
-      watchFor: [
-        'Pick points on grid corners. Points elsewhere give fractions that are hard to count.',
-        'The zero is where it crosses the x-axis, not the y-axis.',
-      ],
-    },
+    tableSection,
   ];
 }
 
 export function sectionsFor(ex: LinearExample): Section[] {
-  return [
-    ...foundationSections(),
-    ...conceptSections(ex),
-    ...sectionsOneTwo(ex),
-    ...sectionsThreeFive(ex),
-  ];
+  return [...foundationSections(), ...conceptSections(ex), ...representationSections(ex)];
 }
