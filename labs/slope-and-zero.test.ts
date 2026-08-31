@@ -255,6 +255,14 @@ describe('zero-of-a-function', () => {
     expect(joined).not.toContain('(0, 0)');
     expect(joined).toContain('no zero');
   });
+
+  it('distinguishes no zero from every x in tutor notes', () => {
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'zero-of-a-function')!;
+      expect((s.watchFor ?? []).join(' ')).toContain(ex.zeroNote!);
+    }
+  });
 });
 
 const HANDOUT_ORDER = [
@@ -280,6 +288,20 @@ describe('section sequence', () => {
     expect(ids).not.toContain('definitions');
     // the table section carries one id whichever kind of table it shows
     expect(ids.filter((id) => id.startsWith('from-table'))).toEqual(['from-table']);
+  });
+
+  it('keeps both flat cases free of unique-zero and divide-by-m claims', () => {
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'includes-zero');
+      const copy = sectionsFor(ex)
+        .flatMap((s) => [s.body, ...(s.watchFor ?? []), ...s.steps.flatMap((st) => [st.text, st.why ?? ''])])
+        .join(' ')
+        .toLowerCase();
+      expect(copy).not.toContain('same zero');
+      expect(copy).not.toContain('divide by m');
+      expect(copy).not.toContain('x = -b/m');
+      expect(copy).toContain(ex.zeroNote!.toLowerCase());
+    }
   });
 
 });
@@ -320,6 +342,18 @@ describe('from-graph', () => {
       const joined = s.steps.map((st) => st.text).join(' ');
       expect(joined).not.toContain('crosses the x-axis. That x is the zero');
       expect(joined).toContain(ex.zeroNote!);
+    }
+  });
+
+  it('keeps the flat case honest in tutor notes', () => {
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'includes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-graph')!;
+      const watchFor = (s.watchFor ?? []).join(' ');
+      expect(s.body).toContain(ex.zeroNote!);
+      expect(s.body).not.toContain('Read the slope and the zero straight off');
+      expect(watchFor).toContain(ex.zeroNote!);
+      expect(watchFor).not.toContain('where it crosses the x-axis');
     }
   });
 });
@@ -404,6 +438,16 @@ describe('from-equation', () => {
       expect(joined).toContain(ex.zeroNote!);
     }
   });
+
+  it('distinguishes no zero from every x in tutor notes', () => {
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'includes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-equation')!;
+      const watchFor = (s.watchFor ?? []).join(' ');
+      expect(watchFor).toContain(ex.zeroNote!);
+      expect(watchFor).not.toContain('opposite side of 0 from b');
+    }
+  });
 });
 
 describe('from-table: two routes to the zero', () => {
@@ -459,22 +503,28 @@ describe('from-table: two routes to the zero', () => {
     }
   });
 
-  it('states both routes agree', () => {
+  it('states both routes agree without assuming a unique zero', () => {
     for (const c of [
       { m: rat(2), b: rat(-8) },
       { m: rat(-3), b: rat(9) },
+      { m: rat(0), b: rat(4) },
+      { m: rat(0), b: rat(0) },
     ]) {
       const ex = exampleFrom(c.m, c.b, 'excludes-zero');
       const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+      const joined = s.steps.map((st) => st.text).join(' ');
       const last = s.steps[s.steps.length - 1]!;
       const said = last.text.toLowerCase();
-      // both routes are named, and they are put forward as agreeing
-      expect(said).toContain('walk');
+      // Both routes are presented as agreeing, but a flat line has no walk.
+      expect(said).toContain('agree');
       expect(said).toContain('algebra');
-      expect(said).toMatch(/agree|same/);
-      // ...without naming a zero: m = 0 is reachable from the slider, and
-      // then there is no zero for the two routes to give
-      expect(said).not.toContain('zero');
+      if (ex.zero === null) {
+        expect(said).not.toContain('same zero');
+        expect(said).not.toContain('use the walk');
+      } else {
+        expect(said).toContain('walk');
+        expect(joined).toContain(`x = ${format(ex.zero)}`);
+      }
     }
   });
 
@@ -498,6 +548,7 @@ describe('from-table: two routes to the zero', () => {
       expect(joined).toContain('This line is flat');
       expect(joined).toContain('0 = 0x');
       expect(texts.some((t) => t.includes(ex.zeroNote!))).toBe(true);
+      expect((s.watchFor ?? []).join(' ')).toContain(ex.zeroNote!);
     }
   });
 
@@ -513,6 +564,13 @@ describe('from-table: two routes to the zero', () => {
       // ...but the walk is not held out as the way to see it
       expect(last).not.toContain('use the walk');
     }
+  });
+
+  it('does not call an all-zero flat table a table with no y = 0', () => {
+    const ex = exampleFrom(rat(0), rat(0), 'excludes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+    expect(s.title).not.toContain('no y = 0');
+    expect(s.body.toLowerCase()).toContain('every x is a zero');
   });
 });
 
@@ -536,7 +594,8 @@ describe('from-table: the includes-zero branch when the line is flat', () => {
     const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
     expect(ex.table.every((r) => r.y.n === 0)).toBe(true);
     expect(s.title).toContain('includes y = 0');
-    expect(s.body).toContain('has a row where y is 0');
+    expect(s.body.toLowerCase()).toContain('every x is a zero');
+    expect(s.body).not.toContain('the zero is sitting right there');
     const joined = s.steps.map((st) => st.text).join(' ');
     expect(joined).not.toContain('The x above it is the zero');
     expect(joined).not.toContain('no zero');

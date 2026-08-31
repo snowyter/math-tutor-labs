@@ -166,9 +166,10 @@ export function conceptSections(ex: LinearExample): Section[] {
   const zx = z === null ? '' : format(z);
   const zPoint = `(${zx}, 0)`;
   const zZero = zeroText(ex);
+  const flatNote = ex.zeroNote ?? 'This line has no zero.';
   const crossingSteps: Step[] =
     z === null
-      ? [{ text: ex.zeroNote ?? 'This line has no zero.' }]
+      ? [{ text: flatNote }]
       : [
           {
             text: `This line crosses the x-axis at ${zPoint}. The x-intercept is the point ${zPoint}, but the zero is ${zZero} — the x-value on its own.`,
@@ -265,10 +266,13 @@ export function conceptSections(ex: LinearExample): Section[] {
         { text: 'In a graph, it is the x-value where the line crosses the x-axis.' },
         ...crossingSteps,
       ],
-      watchFor: [
-        'The zero is an x-value. The x-intercept is the point. The handout tests this distinction.',
-        ...(z === null ? [] : [`Say "${zZero}", not "${zPoint}".`]),
-      ],
+      watchFor:
+        z === null
+          ? [flatNote]
+          : [
+              'The zero is an x-value. The x-intercept is the point. The handout tests this distinction.',
+              `Say "${zZero}", not "${zPoint}".`,
+            ],
     },
   ];
 }
@@ -318,7 +322,9 @@ export function representationSections(ex: LinearExample): Section[] {
           title: flatNoZeroRow ? 'From a table with no y = 0' : 'From a table that includes y = 0',
           body: flatNoZeroRow
             ? 'This table has no row where y is 0, because the line is flat. There is no zero to read off.'
-            : 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
+            : flat
+              ? `Every row has y = 0 because the line is the x-axis, so ${flatNote}`
+              : 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
           widget: {
             kind: 'table',
             highlightRows: [zeroRowIndex, Math.min(zeroRowIndex + 1, rows.length - 1)],
@@ -360,19 +366,21 @@ export function representationSections(ex: LinearExample): Section[] {
             'Any two columns give the same slope — pick easy ones.',
             flat
               ? hasZeroRow
-                ? 'Every row reads 0 here, so there is no single row to pick out: every x is a zero.'
-                : 'A flat line off the axis has no zero, so this table has no 0 row to read.'
+                ? `Every row reads 0 here, so there is no single row to pick out: ${flatNote}`
+                : `A flat line off the axis has no 0 row to read: ${flatNote}`
               : 'The zero is the x above the 0, not the 0 itself.',
             '(y₂ − y₁)/(x₂ − x₁) is just rise over run written with coordinates — keep the y-difference on top.',
           ],
         }
       : {
           id: 'from-table',
-          title: 'From a table with no y = 0',
+          title: flat && hasZeroRow ? 'From a table where every y = 0' : 'From a table with no y = 0',
           // The flat line has no slope for the walk to slide on, so the body
           // must not send the student on one either.
           body: flat
-            ? 'This line is flat, so y is the same in every column. The walk needs a slope, so the algebra is the route that settles it.'
+            ? hasZeroRow
+              ? `Every row has y = 0 because the line is the x-axis, so ${flatNote}`
+              : 'This line is flat, so y is the same in every column. The walk needs a slope, so the algebra is the route that settles it.'
             : 'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then walk to it.',
           widget: { kind: 'walkToZero', row: 0 },
           steps: [
@@ -446,8 +454,8 @@ export function representationSections(ex: LinearExample): Section[] {
           ],
           watchFor: flat
             ? [
-                'A flat line has no slope to walk on, so the walk cannot find the zero — the algebra is the route that settles it.',
-                'When the slope is 0, check b before answering: b = 0 means every x is a zero, any other b means none.',
+                `The walk needs a nonzero slope, so it cannot settle this flat line. ${flatNote}`,
+                `When the slope is 0, ${flatNote}`,
               ]
             : [
                 'No y = 0 in the table does not mean there is no zero — the line still crosses, just between rows.',
@@ -460,7 +468,7 @@ export function representationSections(ex: LinearExample): Section[] {
     {
       id: 'from-graph',
       title: 'From a graph',
-      body: 'Read the slope and the zero straight off the picture.',
+      body: flat ? `Read the slope off the picture. ${flatNote}` : 'Read the slope and the zero straight off the picture.',
       widget: { kind: 'graph', showTriangle: true, showZero: true },
       steps: [
         { text: 'Find two points on the line that sit exactly on grid corners.' },
@@ -488,7 +496,7 @@ export function representationSections(ex: LinearExample): Section[] {
       ],
       watchFor: [
         'Pick points on grid corners. Points elsewhere give fractions that are hard to count.',
-        'The zero is where it crosses the x-axis, not the y-axis.',
+        flat ? flatNote : 'The zero is where it crosses the x-axis, not the y-axis.',
       ],
     },
     {
@@ -532,13 +540,16 @@ export function representationSections(ex: LinearExample): Section[] {
           answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
         },
       ],
-      watchFor: [
-        'm is the number times x, not the number on its own.',
-        flat
-          ? 'When m is 0 there is nothing to divide by — a flat line has no single zero.'
-          : 'The zero is negative b divided by m — the sign is the usual place it goes wrong.',
-        'When m is positive the zero sits on the opposite side of 0 from b; a negative m keeps it on the same side.',
-      ],
+      watchFor: flat
+        ? [
+            'm is the number times x, not the number on its own.',
+            `When m is 0, ${flatNote}`,
+          ]
+        : [
+            'm is the number times x, not the number on its own.',
+            'The zero is negative b divided by m — the sign is the usual place it goes wrong.',
+            'When m is positive the zero sits on the opposite side of 0 from b; a negative m keeps it on the same side.',
+          ],
     },
     tableSection,
   ];
