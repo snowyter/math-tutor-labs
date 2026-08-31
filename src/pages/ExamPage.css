@@ -107,3 +107,27 @@
   color: var(--ink-soft);
   font-weight: 600;
 }
+
+@media (max-width: 820px) {
+  .exam-page {
+    padding: 20px 16px 64px;
+    gap: 14px;
+  }
+
+  .exam-title {
+    font-size: 22px;
+  }
+
+  .exam-mini {
+    max-width: 100%;
+  }
+
+  .exam-choices button {
+    flex: 1 1 auto;
+    min-width: 44%;
+  }
+
+  .exam-numeric input {
+    max-width: 100%;
+  }
+}
