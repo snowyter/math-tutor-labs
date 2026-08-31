@@ -87,3 +87,22 @@
   margin: 0;
   font-size: 14px;
 }
+
+.exam-history {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.exam-history-title {
+  margin: 0;
+  font-size: 19px;
+}
+
+.exam-history-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}

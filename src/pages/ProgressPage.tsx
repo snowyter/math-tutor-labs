@@ -1,11 +1,13 @@
 import './ProgressPage.css';
 import { PREREQS } from '../../prereqs';
 import { useProgress } from '../shell/useProgress';
-import { goToLab, goToPrereq } from '../shell/useHashRoute';
+import { goToLab, goToPrereq, goToExam } from '../shell/useHashRoute';
+import { useExamAttempts } from '../shell/useExamAttempts';
 import { LABS } from '../engine/registry';
 
 export function ProgressPage() {
   const { progress, clear } = useProgress();
+  const { attempts } = useExamAttempts();
 
   const attempted = PREREQS.filter((l) => progress.lessons[l.id]).length;
 
@@ -23,6 +25,9 @@ export function ProgressPage() {
         </div>
         <button className="primary" onClick={() => goToLab(LABS[0]!.id)}>
           Back to lab
+        </button>
+        <button className="primary" onClick={goToExam}>
+          Take the mock exam
         </button>
       </header>
 
@@ -49,6 +54,25 @@ export function ProgressPage() {
           );
         })}
       </ul>
+
+      <section className="exam-history">
+        <h2 className="exam-history-title">Mock exam</h2>
+        {attempts.length === 0 ? (
+          <p className="soft">No attempts yet.</p>
+        ) : (
+          <ul className="exam-history-list">
+            {attempts.map((a, i) => (
+              <li key={a.updatedAt}>
+                {`${a.score}/${a.of}`}
+                <span className="soft">
+                  {` — Part I ${a.partI}/20, Part II ${a.partII}/40 — ${new Date(a.updatedAt).toLocaleDateString()}`}
+                </span>
+                {i === 0 && ' (latest)'}
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <p className="progress-note faint">
         Scores are saved in this browser only. They are not shared between devices.
