@@ -386,16 +386,28 @@ export function representationSections(ex: LinearExample): Section[] {
     {
       id: 'from-equation',
       title: 'From an equation',
-      body: 'In y = mx + b, the slope and the y-intercept are both sitting in the equation.',
+      body:
+        'In f(x) = mx + b — the slope-intercept form — the slope and the y-intercept are both sitting in the equation.',
       widget: { kind: 'zeroLine' },
       steps: [
         { text: 'm is the number multiplied by x — that is the slope.' },
         { text: 'b is the number on its own — where the line crosses the y-axis.' },
         {
+          text: 'This is called slope-intercept form, because it hands you the slope and the y-intercept directly.',
+        },
+        {
           text: 'The zero is where y is 0, so solve 0 = mx + b.',
           why: 'Set y to 0 because the zero is where the line meets the x-axis.',
         },
         { text: 'Take b off both sides, then divide by m. So x = -b/m. Watch the signs on the number line.' },
+        {
+          text: 'An equation can also be written in standard form: Ax + By = C.',
+          why: 'The x and y sit on the same side, so the slope is no longer visible.',
+        },
+        {
+          text: 'In standard form the slope is −A/B.',
+          why: 'Rearranging Ax + By = C into slope-intercept form gives y = (−A/B)x + C/B.',
+        },
         {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },

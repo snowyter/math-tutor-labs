@@ -340,3 +340,20 @@ describe('table widget can carry its own rows', () => {
     expect(rows![0]!.x).toBe(ex.table[0]!.x);
   });
 });
+
+describe('from-equation', () => {
+  it('names slope-intercept form', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-equation')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('slope-intercept form');
+  });
+
+  it('covers standard form', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-equation')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('standard form');
+    expect(joined).toContain('−A/B');
+  });
+});
