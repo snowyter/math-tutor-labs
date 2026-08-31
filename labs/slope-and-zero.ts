@@ -1,4 +1,4 @@
-import { rat, format, isZero, sub, mul, div } from '../src/engine/rational';
+import { rat, format, isZero, sub, mul, div, neg } from '../src/engine/rational';
 import type { LinearExample, Point, Rational, Section, Step } from '../src/engine/types';
 
 function zeroText(ex: LinearExample): string {
@@ -282,10 +282,22 @@ export function representationSections(ex: LinearExample): Section[] {
   // first row, printed as a full chain so nothing is skipped when read aloud.
   const row0 = rows[0]!;
   const mx0 = mul(ex.m, rat(row0.x));
+  const bVal = sub(row0.y, mx0);
   const bWorked =
     `Take the row x = ${row0.x}, y = ${format(row0.y)}: ` +
     `b = ${signedRat(row0.y)} − ${signedRat(ex.m)} × ${signedInt(row0.x)}` +
-    ` = ${signedRat(row0.y)} − ${signedRat(mx0)} = ${format(sub(row0.y, mx0))}`;
+    ` = ${signedRat(row0.y)} − ${signedRat(mx0)} = ${format(bVal)}`;
+
+  // The zero, worked the same way: 0 = mx + b, take b off both sides, read off x.
+  // Branch on the zero itself rather than dividing by m — the slope slider can
+  // reach m = 0, and div() throws on a zero denominator. "0 = 2x − 8" reads
+  // better aloud than "0 = 2x + (-8)", so the sign goes on the operator.
+  const zeroRat = ex.zero;
+  const flat = zeroRat === null;
+  const bTerm = bVal.n < 0 ? `− ${format(neg(bVal))}` : `+ ${format(bVal)}`;
+  const zeroWorked = flat
+    ? `0 = ${signedRat(ex.m)}x ${bTerm} → 0 = ${format(bVal)}`
+    : `0 = ${signedRat(ex.m)}x ${bTerm} → ${format(neg(bVal))} = ${signedRat(ex.m)}x → x = ${format(zeroRat)}`;
 
   const tableSection: Section =
     ex.tableKind === 'includes-zero'
@@ -332,11 +344,23 @@ export function representationSections(ex: LinearExample): Section[] {
             'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then walk to it.',
           widget: { kind: 'walkToZero', row: 0 },
           steps: [
-            { text: 'There is no 0 in the y row, so the zero is not in the table.' },
-            {
-              text: 'The line still crosses the x-axis — just between the rows we have.',
-              why: 'The table only shows a few points. The line goes on past them.',
-            },
+            // The slope slider reaches m = 0, and then y never changes: there
+            // is no zero to walk to and no m to divide by. Every line below
+            // that claims a zero swaps to saying so.
+            ...(flat
+              ? [
+                  {
+                    text: `Look down the y row: it reads ${format(row0.y)} in every column. This line is flat, so y never changes.`,
+                    why: 'Zero slope means level — see Types of slope.',
+                  },
+                ]
+              : [
+                  { text: 'There is no 0 in the y row, so the zero is not in the table.' },
+                  {
+                    text: 'The line still crosses the x-axis — just between the rows we have.',
+                    why: 'The table only shows a few points. The line goes on past them.',
+                  },
+                ]),
             {
               text: 'First find the slope from any two columns.',
               answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
@@ -345,10 +369,18 @@ export function representationSections(ex: LinearExample): Section[] {
               text: bridgeText(rows),
               why: 'That is why slope is also called the rate of change — how much y changes for each 1 step across.',
             },
-            {
-              text: 'Now walk from the first row: come down to y = 0, sliding across as you go. Where you land is the zero.',
-              why: 'Each 1 down is 1/m across. So x = the column x minus y over m.',
-            },
+            ...(flat
+              ? [
+                  {
+                    text: 'The walk slides across on the slope. This line has none, so there is nothing to walk.',
+                  },
+                ]
+              : [
+                  {
+                    text: 'Now walk from the first row: come down to y = 0, sliding across as you go. Where you land is the zero.',
+                    why: 'Each 1 down is 1/m across. So x = the column x minus y over m.',
+                  },
+                ]),
             {
               text: 'What is the zero?',
               answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
@@ -363,11 +395,18 @@ export function representationSections(ex: LinearExample): Section[] {
               text: `Here the slope is ${format(ex.m)}, so b = y − ${signedRat(ex.m)}x. ${bWorked}.`,
             },
             {
-              text: `Now set y to 0 and solve for x: ${zeroText(ex)}.`,
-              why: 'Set y to 0 and you get 0 = mx + b. Take b off both sides, then divide by m.',
+              text:
+                `Now set y to 0 and solve for x: ${zeroWorked}.` +
+                // the flat line's own case is the conclusion: no zero, or every x
+                (flat ? ` ${ex.zeroNote ?? 'This line has no zero.'}` : ''),
+              why: flat
+                ? 'Finding the zero means dividing by m, and here m is 0 — you cannot divide by 0.'
+                : 'Take b off both sides first, then divide by m.',
             },
+            // One closing line for both cases: it must not name a zero, since
+            // a flat line has none for the two routes to give.
             {
-              text: 'Both ways give the same zero. Use the walk to see it, the algebra to work it out.',
+              text: 'Both ways agree. Use the walk to see it, the algebra to work it out.',
             },
           ],
           watchFor: [
@@ -411,8 +450,7 @@ export function representationSections(ex: LinearExample): Section[] {
     {
       id: 'from-equation',
       title: 'From an equation',
-      body:
-        'In f(x) = mx + b — the slope-intercept form — the slope and the y-intercept are both sitting in the equation.',
+      body: 'In y = mx + b, the slope and the y-intercept are both sitting in the equation.',
       widget: { kind: 'zeroLine' },
       steps: [
         { text: 'm is the number multiplied by x — that is the slope.' },

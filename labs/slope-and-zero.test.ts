@@ -1,10 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import { sectionsFor } from './slope-and-zero';
 import { exampleFrom } from '../src/engine/generate';
-import { rat, format, sub, div } from '../src/engine/rational';
-import type { TableKind, WidgetSpec } from '../src/engine/types';
+import { rat, format, sub, div, mul, neg } from '../src/engine/rational';
+import type { Rational, TableKind, WidgetSpec } from '../src/engine/types';
 
 const KINDS: TableKind[] = ['includes-zero', 'excludes-zero'];
+
+// A value substituted into a sum is wrapped when it is negative, the way the
+// lab prints it: "b = (-4) − 2 × 2", never "b = -4 − 2 × 2".
+function paren(v: Rational): string {
+  return v.n < 0 ? `(${format(v)})` : format(v);
+}
+
+function parenInt(v: number): string {
+  return v < 0 ? `(${v})` : String(v);
+}
 
 function tableSection(m: ReturnType<typeof rat>, b: ReturnType<typeof rat>, kind: TableKind) {
   const ex = exampleFrom(m, b, kind);
@@ -356,6 +366,14 @@ describe('from-equation', () => {
     expect(joined).toContain('standard form');
     expect(joined).toContain('−A/B');
   });
+
+  it('names y, the letter the widget under it prints', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-equation')!;
+    // the zeroLine widget below this body renders "y = mx + b"
+    expect(s.body).toContain('y = mx + b');
+    expect(s.body).not.toContain('f(x)');
+  });
 });
 
 describe('from-table: two routes to the zero', () => {
@@ -370,11 +388,85 @@ describe('from-table: two routes to the zero', () => {
     expect(joined).toContain('b = y − ');
   });
 
+  it('works b out of the row it quotes', () => {
+    const cases = [
+      { m: rat(2), b: rat(-8) },
+      { m: rat(-3), b: rat(9) },
+      { m: rat(3, 4), b: rat(-2) },
+    ];
+    for (const c of cases) {
+      const ex = exampleFrom(c.m, c.b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+      const joined = s.steps.map((st) => st.text).join(' ');
+      const row = ex.table[0]!;
+      // b derived from the row and the slope the copy quotes — printing ex.b
+      // instead would pass a test on the letter alone while skipping the sum
+      const worked = sub(row.y, mul(c.m, rat(row.x)));
+      expect(worked).toEqual(ex.b);
+      expect(joined).toContain(`b = ${paren(row.y)} − ${paren(c.m)} × ${parenInt(row.x)}`);
+      expect(joined).toContain(`= ${format(worked)}`);
+    }
+  });
+
+  it('works the zero out in full, the way it works b', () => {
+    const cases = [
+      { m: rat(2), b: rat(-8), zero: rat(4) },
+      { m: rat(-3), b: rat(9), zero: rat(3) },
+      { m: rat(3, 4), b: rat(-2), zero: rat(8, 3) },
+    ];
+    for (const c of cases) {
+      const ex = exampleFrom(c.m, c.b, 'excludes-zero');
+      expect(ex.zero).toEqual(c.zero);
+      const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+      const joined = s.steps.map((st) => st.text).join(' ');
+      // every link of 0 = mx + b → -b = mx → x = zero, computed here rather
+      // than hardcoded, so a copy that jumps straight to the answer fails
+      const bTerm = c.b.n < 0 ? `− ${format(neg(c.b))}` : `+ ${format(c.b)}`;
+      const chain =
+        `0 = ${paren(c.m)}x ${bTerm} → ${format(neg(c.b))} = ${paren(c.m)}x` +
+        ` → x = ${format(c.zero)}`;
+      expect(joined).toContain(chain);
+    }
+  });
+
   it('states both routes agree', () => {
-    const ex = exampleFrom(rat(2), rat(-8), 'excludes-zero');
-    const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
-    const last = s.steps[s.steps.length - 1]!;
-    expect(last.text).toContain('same');
+    for (const c of [
+      { m: rat(2), b: rat(-8) },
+      { m: rat(-3), b: rat(9) },
+    ]) {
+      const ex = exampleFrom(c.m, c.b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+      const last = s.steps[s.steps.length - 1]!;
+      const said = last.text.toLowerCase();
+      // both routes are named, and they are put forward as agreeing
+      expect(said).toContain('walk');
+      expect(said).toContain('algebra');
+      expect(said).toMatch(/agree|same/);
+      // ...without naming a zero: m = 0 is reachable from the slider, and
+      // then there is no zero for the two routes to give
+      expect(said).not.toContain('zero');
+    }
+  });
+
+  it('says nothing false when the line is flat', () => {
+    // m = 0 is reachable from the slope slider. Then there is no zero, and
+    // div() throws on a zero denominator, so the copy has to branch on it.
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+      expect(ex.zero).toBeNull();
+      const texts = s.steps.map((st) => st.text);
+      const whys = s.steps.map((st) => st.why ?? '').join(' ');
+      const joined = texts.join(' ');
+      // no zero exists, so nothing may claim one or tell the tutor to divide by m
+      expect(whys).not.toContain('divide by m');
+      expect(joined).not.toContain('→ x =');
+      expect(joined).not.toContain('just between the rows');
+      // the flat line's own equation is still worked, and its case is named
+      expect(joined).toContain('This line is flat');
+      expect(joined).toContain('0 = 0x');
+      expect(texts.some((t) => t.includes(ex.zeroNote!))).toBe(true);
+    }
   });
 });
 
