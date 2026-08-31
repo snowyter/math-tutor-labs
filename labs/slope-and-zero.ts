@@ -89,6 +89,60 @@ export function foundationSections(): Section[] {
         'The zero answers "when is it 0?", so it is a day number, not a money amount.',
       ],
     },
+    {
+      id: 'is-it-linear',
+      title: 'Is it linear?',
+      body: 'The change in f(x) has to be the same every time.',
+      widget: {
+        kind: 'tableCompare',
+        tables: [
+          {
+            rows: [
+              { x: -1, y: rat(4) },
+              { x: 0, y: rat(6) },
+              { x: 1, y: rat(8) },
+              { x: 2, y: rat(10) },
+            ],
+            changes: ['+2', '+2', '+2'],
+          },
+          {
+            rows: [
+              { x: 0, y: rat(1) },
+              { x: 1, y: rat(2) },
+              { x: 2, y: rat(4) },
+              { x: 3, y: rat(7) },
+            ],
+            changes: ['+1', '+2', '+3'],
+          },
+        ],
+      },
+      steps: [
+        {
+          text: 'Work out the change in f(x) between each pair of columns.',
+          why: 'Constant change means linear. Changing change means it is not.',
+        },
+        {
+          text: 'The first table changes by +2 every time, so it is linear. The second changes by +1, then +2, then +3, so it is not.',
+        },
+        {
+          text: 'Which table is a linear function?',
+          answer: {
+            kind: 'choice',
+            prompt: 'The linear function is',
+            options: ['The first table', 'The second table', 'Both of them', 'Neither of them'],
+            correct: 0,
+          },
+        },
+        { text: 'On a graph, a linear function is a straight line.' },
+        {
+          text: 'In an equation, the degree of x is one or less — no x-squared, no x in a denominator.',
+        },
+      ],
+      watchFor: [
+        'A constant change in f(x) is the test — not whether the numbers look nice.',
+        'Check every gap, not just the first one: +1, +2, +3 hides a change that is not constant.',
+      ],
+    },
   ];
 }
 

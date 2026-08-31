@@ -89,6 +89,27 @@ describe('what-is-linear: the Mika opener', () => {
   });
 });
 
+describe('is-it-linear', () => {
+  it('shows one linear and one non-linear table', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'is-it-linear')!;
+    const w = s.widget as { kind: string; tables: { changes: string[] }[] };
+    expect(w.kind).toBe('tableCompare');
+    expect(w.tables).toHaveLength(2);
+    // constant change is linear; changing change is not
+    expect(new Set(w.tables[0]!.changes).size).toBe(1);
+    expect(new Set(w.tables[1]!.changes).size).toBeGreaterThan(1);
+  });
+
+  it('asks which one is linear', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'is-it-linear')!;
+    const choice = s.steps.map((st) => st.answer).find((a) => a?.kind === 'choice')!;
+    expect(choice.kind).toBe('choice');
+    if (choice.kind === 'choice') expect(choice.correct).toBe(0);
+  });
+});
+
 describe('table widget can carry its own rows', () => {
   it('lets a section supply rows instead of using the example table', () => {
     const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
