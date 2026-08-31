@@ -1,9 +1,37 @@
-import { rat, format, isZero } from '../src/engine/rational';
-import type { LinearExample, Section } from '../src/engine/types';
+import { rat, format, isZero, sub, div } from '../src/engine/rational';
+import type { LinearExample, Point, Rational, Section } from '../src/engine/types';
 
 function zeroText(ex: LinearExample): string {
   if (ex.zero === null) return 'no zero';
   return `x = ${format(ex.zero)}`;
+}
+
+function signedInt(v: number): string {
+  return v < 0 ? `(${v})` : String(v);
+}
+
+function signedRat(v: Rational): string {
+  return v.n < 0 ? `(${format(v)})` : format(v);
+}
+
+// DepEd teaches rise/run and the coordinate formula (y₂ − y₁)/(x₂ − x₁) as
+// the same idea, so bridge between them using the table's own two rows.
+function bridgeText(rows: Point[]): string {
+  const a = rows[0]!;
+  const b = rows[1]!;
+  const rise = sub(b.y, a.y);
+  const run = rat(b.x - a.x);
+  // "2/1 = 2" is worth showing; "1/2 = 1/2" is just noise.
+  const ratio = `${format(rise)}/${format(run)}`;
+  const slope = format(div(rise, run));
+  const shown = ratio === slope ? ratio : `${ratio} = ${slope}`;
+  return (
+    `Take two columns: (${a.x}, ${format(a.y)}) and (${b.x}, ${format(b.y)}). ` +
+    `The rise is the change in y: ${signedRat(b.y)} − ${signedRat(a.y)} = ${format(rise)}. ` +
+    `The run is the change in x: ${signedInt(b.x)} − ${signedInt(a.x)} = ${format(run)}. ` +
+    `So the slope is ${shown}. ` +
+    `Written with coordinates, that is (y₂ − y₁)/(x₂ − x₁) — the same thing.`
+  );
 }
 
 export function sectionsOneTwo(ex: LinearExample): Section[] {
@@ -12,7 +40,7 @@ export function sectionsOneTwo(ex: LinearExample): Section[] {
       id: 'definitions',
       title: 'What slope and zero mean',
       body:
-        'Slope measures how steep a line is: rise over run. The zero is where the line crosses the x-axis — the place where y is 0.',
+        'Slope measures how steep a line is: rise over run. It is also called the rate of change. The zero is where the line crosses the x-axis — the place where y is 0.',
       widget: { kind: 'graph', showTriangle: true, showZero: true },
       steps: [
         {
@@ -102,10 +130,15 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
               text: 'What is the slope?',
               answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
             },
+            {
+              text: bridgeText(rows),
+              why: 'That is why slope is also called the rate of change — how much y changes for each 1 step across.',
+            },
           ],
           watchFor: [
             'Any two columns give the same slope — pick easy ones.',
             'The zero is the x above the 0, not the 0 itself.',
+            '(y₂ − y₁)/(x₂ − x₁) is just rise over run written with coordinates — keep the y-difference on top.',
           ],
         }
       : {
@@ -123,6 +156,10 @@ export function sectionsThreeFive(ex: LinearExample): Section[] {
             {
               text: 'First find the slope from any two columns.',
               answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
+            },
+            {
+              text: bridgeText(rows),
+              why: 'That is why slope is also called the rate of change — how much y changes for each 1 step across.',
             },
             {
               text: 'Now walk from the first row: come down to y = 0, sliding across as you go. Where you land is the zero.',
