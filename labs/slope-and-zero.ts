@@ -294,6 +294,15 @@ export function representationSections(ex: LinearExample): Section[] {
   // better aloud than "0 = 2x + (-8)", so the sign goes on the operator.
   const zeroRat = ex.zero;
   const flat = zeroRat === null;
+  // A flat line has no zero, but the two flat cases are different: on the
+  // x-axis every x is a zero, off it none are. zeroNote already says which, so
+  // every flat line below quotes it instead of inventing a second wording.
+  const flatNote = ex.zeroNote ?? 'This line has no zero.';
+  // What the table really shows, not the table kind: a flat line with b = 0
+  // puts a 0 in every column, so a table can include y = 0 and still have no
+  // single zero to read off.
+  const hasZeroRow = zeroRowIndex >= 0;
+  const flatNoZeroRow = flat && !hasZeroRow;
   const bTerm = bVal.n < 0 ? `− ${format(neg(bVal))}` : `+ ${format(bVal)}`;
   const zeroWorked = flat
     ? `0 = ${signedRat(ex.m)}x ${bTerm} → 0 = ${format(bVal)}`
@@ -303,18 +312,34 @@ export function representationSections(ex: LinearExample): Section[] {
     ex.tableKind === 'includes-zero'
       ? {
           id: 'from-table',
-          title: 'From a table that includes y = 0',
-          body: 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
+          // A flat line with b ≠ 0 leaves this table with no 0 in it at all, so
+          // the title has to stop promising one. With b = 0 every column reads
+          // 0 and the title stands.
+          title: flatNoZeroRow ? 'From a table with no y = 0' : 'From a table that includes y = 0',
+          body: flatNoZeroRow
+            ? 'This table has no row where y is 0, because the line is flat. There is no zero to read off.'
+            : 'When the table has a row where y is 0, the zero is sitting right there — read it off.',
           widget: {
             kind: 'table',
             highlightRows: [zeroRowIndex, Math.min(zeroRowIndex + 1, rows.length - 1)],
           },
           steps: [
-            {
-              text: 'Look down the y row for a 0.',
-              why: 'A y-value of 0 means that point sits on the x-axis.',
-            },
-            { text: `The x above it is the zero: ${zeroText(ex)}.` },
+            flat
+              ? {
+                  text: hasZeroRow
+                    ? 'Look down the y row: every column reads 0. This line lies on the x-axis.'
+                    : `Look down the y row: it reads ${format(row0.y)} in every column. There is no 0 anywhere in it.`,
+                  why: 'Zero slope means level — see Types of slope.',
+                }
+              : {
+                  text: 'Look down the y row for a 0.',
+                  why: 'A y-value of 0 means that point sits on the x-axis.',
+                },
+            flat
+              ? hasZeroRow
+                ? { text: flatNote }
+                : { text: `There is no zero to read off. ${flatNote}` }
+              : { text: `The x above it is the zero: ${zeroText(ex)}.` },
             {
               text: 'For the slope, take any two columns. Rise is the change in y, run is the change in x.',
             },
@@ -333,15 +358,22 @@ export function representationSections(ex: LinearExample): Section[] {
           ],
           watchFor: [
             'Any two columns give the same slope — pick easy ones.',
-            'The zero is the x above the 0, not the 0 itself.',
+            flat
+              ? hasZeroRow
+                ? 'Every row reads 0 here, so there is no single row to pick out: every x is a zero.'
+                : 'A flat line off the axis has no zero, so this table has no 0 row to read.'
+              : 'The zero is the x above the 0, not the 0 itself.',
             '(y₂ − y₁)/(x₂ − x₁) is just rise over run written with coordinates — keep the y-difference on top.',
           ],
         }
       : {
           id: 'from-table',
           title: 'From a table with no y = 0',
-          body:
-            'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then walk to it.',
+          // The flat line has no slope for the walk to slide on, so the body
+          // must not send the student on one either.
+          body: flat
+            ? 'This line is flat, so y is the same in every column. The walk needs a slope, so the algebra is the route that settles it.'
+            : 'There is no row where y is 0, so the zero cannot be read off. Find the slope first, then walk to it.',
           widget: { kind: 'walkToZero', row: 0 },
           steps: [
             // The slope slider reaches m = 0, and then y never changes: there
@@ -398,22 +430,30 @@ export function representationSections(ex: LinearExample): Section[] {
               text:
                 `Now set y to 0 and solve for x: ${zeroWorked}.` +
                 // the flat line's own case is the conclusion: no zero, or every x
-                (flat ? ` ${ex.zeroNote ?? 'This line has no zero.'}` : ''),
+                (flat ? ` ${flatNote}` : ''),
               why: flat
                 ? 'Finding the zero means dividing by m, and here m is 0 — you cannot divide by 0.'
                 : 'Take b off both sides first, then divide by m.',
             },
-            // One closing line for both cases: it must not name a zero, since
-            // a flat line has none for the two routes to give.
-            {
-              text: 'Both ways agree. Use the walk to see it, the algebra to work it out.',
-            },
+            // One closing line for the two cases. It must not name a zero,
+            // since a flat line has none — and where the walk has just been
+            // ruled out it must not send the student back to it either.
+            flat
+              ? {
+                  text: 'Both ways agree. Here there is no walk, so the algebra is the one that answers.',
+                }
+              : { text: 'Both ways agree. Use the walk to see it, the algebra to work it out.' },
           ],
-          watchFor: [
-            'No y = 0 in the table does not mean there is no zero — the line still crosses, just between rows.',
-            'Order matters here: find the slope first, then the zero.',
-            'A negative y means the zero sits to the right of that row; a positive y puts it to the left.',
-          ],
+          watchFor: flat
+            ? [
+                'A flat line has no slope to walk on, so the walk cannot find the zero — the algebra is the route that settles it.',
+                'When the slope is 0, check b before answering: b = 0 means every x is a zero, any other b means none.',
+              ]
+            : [
+                'No y = 0 in the table does not mean there is no zero — the line still crosses, just between rows.',
+                'Order matters here: find the slope first, then the zero.',
+                'A negative y means the zero sits to the right of that row; a positive y puts it to the left.',
+              ],
         };
 
   return [
@@ -427,9 +467,13 @@ export function representationSections(ex: LinearExample): Section[] {
         { text: 'Count squares up or down between them — that is the rise.' },
         { text: 'Count squares across — that is the run.' },
         { text: 'Slope is rise over run.', why: 'Rise on top, run on the bottom.' },
-        {
-          text: 'Follow the line down to where it crosses the x-axis. That x is the zero.',
-        },
+        // A flat line has no crossing to follow down to, so the step names its
+        // own case instead of pointing at one.
+        flat
+          ? { text: flatNote, why: 'Zero slope means level — see Types of slope.' }
+          : {
+              text: 'Follow the line down to where it crosses the x-axis. That x is the zero.',
+            },
         {
           text: 'What is the slope?',
           answer: { kind: 'numeric', prompt: 'slope =', correct: ex.m },
@@ -462,7 +506,15 @@ export function representationSections(ex: LinearExample): Section[] {
           text: 'The zero is where y is 0, so solve 0 = mx + b.',
           why: 'Set y to 0 because the zero is where the line meets the x-axis.',
         },
-        { text: 'Take b off both sides, then divide by m. So x = -b/m. Watch the signs on the number line.' },
+        // x = -b/m is a division by m, and the slope slider reaches m = 0.
+        flat
+          ? {
+              text: `With m = 0 there is no dividing to do, because you cannot divide by 0. ${flatNote}`,
+              why: 'Setting y to 0 leaves 0 = b, with no x in it to solve for.',
+            }
+          : {
+              text: 'Take b off both sides, then divide by m. So x = -b/m. Watch the signs on the number line.',
+            },
         {
           text: 'An equation can also be written in standard form: Ax + By = C.',
           why: 'The x and y sit on the same side, so the slope is no longer visible.',
@@ -482,7 +534,9 @@ export function representationSections(ex: LinearExample): Section[] {
       ],
       watchFor: [
         'm is the number times x, not the number on its own.',
-        'The zero is negative b divided by m — the sign is the usual place it goes wrong.',
+        flat
+          ? 'When m is 0 there is nothing to divide by — a flat line has no single zero.'
+          : 'The zero is negative b divided by m — the sign is the usual place it goes wrong.',
         'When m is positive the zero sits on the opposite side of 0 from b; a negative m keeps it on the same side.',
       ],
     },

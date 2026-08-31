@@ -6,6 +6,16 @@ import { format, isZero, toNumber } from '../engine/rational';
 import { Fraction } from './Fraction';
 import type { Rational } from '../engine/types';
 
+// A flat line has no single zero to walk to, and the two flat cases are not
+// the same: sitting on the x-axis, every x is a zero; off it, none are. The
+// wording mirrors the example's zeroNote, which this widget is not passed —
+// it only gets the row, and on a flat line the row's y IS b.
+export function flatLineNote(y0: Rational): string {
+  return isZero(y0)
+    ? 'Every x is a zero — this line is the x-axis.'
+    : 'This line has no zero — it never crosses the x-axis.';
+}
+
 export function WalkToZero({
   x0,
   y0,
@@ -23,7 +33,7 @@ export function WalkToZero({
   if (!zero || !walk) {
     return (
       <div className="walktozero">
-        <p className="walktozero-note soft">This line has no zero.</p>
+        <p className="walktozero-note soft">{flatLineNote(y0)}</p>
       </div>
     );
   }

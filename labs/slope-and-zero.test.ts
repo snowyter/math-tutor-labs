@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { sectionsFor } from './slope-and-zero';
+import { flatLineNote } from '../src/widgets/WalkToZero';
 import { exampleFrom } from '../src/engine/generate';
 import { rat, format, sub, div, mul, neg } from '../src/engine/rational';
 import type { Rational, TableKind, WidgetSpec } from '../src/engine/types';
@@ -310,6 +311,17 @@ describe('from-graph', () => {
     expect(joined).toContain('undefined');
     expect(joined).toContain('Types of slope');
   });
+
+  it('sends nobody looking for a crossing the flat line never makes', () => {
+    // m = 0, b ≠ 0 never meets the x-axis; m = 0, b = 0 is the x-axis.
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'includes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-graph')!;
+      const joined = s.steps.map((st) => st.text).join(' ');
+      expect(joined).not.toContain('crosses the x-axis. That x is the zero');
+      expect(joined).toContain(ex.zeroNote!);
+    }
+  });
 });
 
 describe('types-of-slope', () => {
@@ -373,6 +385,24 @@ describe('from-equation', () => {
     // the zeroLine widget below this body renders "y = mx + b"
     expect(s.body).toContain('y = mx + b');
     expect(s.body).not.toContain('f(x)');
+  });
+
+  it('never tells the tutor to divide by m when m is 0', () => {
+    // div() throws on a zero denominator and the slider reaches m = 0, so the
+    // -b/m rule has to give way to the flat line's own case.
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'includes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-equation')!;
+      const joined = s.steps.map((st) => st.text).join(' ');
+      const whys = s.steps.map((st) => st.why ?? '').join(' ');
+      expect(joined).not.toContain('-b/m');
+      expect(joined).not.toContain('divide by m');
+      expect(whys).not.toContain('divide by m');
+      expect((s.watchFor ?? []).join(' ')).not.toContain('divided by m');
+      // and it says what is true instead
+      expect(joined).toContain('cannot divide by 0');
+      expect(joined).toContain(ex.zeroNote!);
+    }
   });
 });
 
@@ -462,10 +492,66 @@ describe('from-table: two routes to the zero', () => {
       expect(whys).not.toContain('divide by m');
       expect(joined).not.toContain('→ x =');
       expect(joined).not.toContain('just between the rows');
+      // the walk is ruled out in the steps, so it cannot be held out above them
+      expect(s.body).not.toContain('walk to it');
       // the flat line's own equation is still worked, and its case is named
       expect(joined).toContain('This line is flat');
       expect(joined).toContain('0 = 0x');
       expect(texts.some((t) => t.includes(ex.zeroNote!))).toBe(true);
+    }
+  });
+
+  it('does not send the student on a walk the flat line has no slope for', () => {
+    // The walk step calls the walk off; the closing line must not offer it back
+    // as a way of seeing a zero that is not there.
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'excludes-zero');
+      const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+      const last = s.steps[s.steps.length - 1]!.text.toLowerCase();
+      // the two routes are still put forward as agreeing...
+      expect(last).toMatch(/agree|same/);
+      // ...but the walk is not held out as the way to see it
+      expect(last).not.toContain('use the walk');
+    }
+  });
+});
+
+describe('from-table: the includes-zero branch when the line is flat', () => {
+  it('stops promising a y = 0 row the table does not have', () => {
+    const ex = exampleFrom(rat(0), rat(4), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+    expect(ex.zero).toBeNull();
+    expect(ex.table.some((r) => r.y.n === 0)).toBe(false);
+    expect(s.title).not.toContain('includes y = 0');
+    expect(s.body).not.toContain('has a row where y is 0');
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).not.toContain('The x above it is the zero');
+    expect(joined).toContain(ex.zeroNote!);
+    expect((s.watchFor ?? []).join(' ')).not.toContain('The zero is the x above the 0');
+  });
+
+  it('reads every x as the zero when the flat line is the axis', () => {
+    // b = 0 with m = 0 puts a 0 in every column, so the title does hold here
+    const ex = exampleFrom(rat(0), rat(0), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+    expect(ex.table.every((r) => r.y.n === 0)).toBe(true);
+    expect(s.title).toContain('includes y = 0');
+    expect(s.body).toContain('has a row where y is 0');
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).not.toContain('The x above it is the zero');
+    expect(joined).not.toContain('no zero');
+    expect(joined).toContain(ex.zeroNote!);
+  });
+});
+
+describe('walk-to-zero widget', () => {
+  it('names the flat line’s own case, in the words the rest of the app uses', () => {
+    // This widget only gets m, the row and the zero — not zeroNote — so it has
+    // to tell the two flat cases apart itself, matching the example's note.
+    for (const b of [rat(4), rat(0)]) {
+      const ex = exampleFrom(rat(0), b, 'excludes-zero');
+      const row = ex.table[0]!;
+      expect(flatLineNote(row.y)).toBe(ex.zeroNote);
     }
   });
 });
