@@ -246,19 +246,21 @@ describe('zero-of-a-function', () => {
   });
 });
 
+const HANDOUT_ORDER = [
+  'what-is-linear',
+  'is-it-linear',
+  'slope-recall',
+  'types-of-slope',
+  'zero-of-a-function',
+  'from-graph',
+  'from-equation',
+  'from-table',
+];
+
 describe('section sequence', () => {
-  it('follows the handout order', () => {
-    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
-    expect(sectionsFor(ex).map((s) => s.id)).toEqual([
-      'what-is-linear',
-      'is-it-linear',
-      'slope-recall',
-      'types-of-slope',
-      'zero-of-a-function',
-      'from-graph',
-      'from-equation',
-      'from-table',
-    ]);
+  it.each(KINDS)('follows the handout order for a table that %s', (kind: TableKind) => {
+    const ex = exampleFrom(rat(2), rat(-8), kind);
+    expect(sectionsFor(ex).map((s) => s.id)).toEqual(HANDOUT_ORDER);
   });
 
   it('has no definitions section any more', () => {
@@ -269,19 +271,6 @@ describe('section sequence', () => {
     expect(ids.filter((id) => id.startsWith('from-table'))).toEqual(['from-table']);
   });
 
-  it('keeps the handout order when the table has no y = 0', () => {
-    const ex = exampleFrom(rat(2), rat(-8), 'excludes-zero');
-    expect(sectionsFor(ex).map((s) => s.id)).toEqual([
-      'what-is-linear',
-      'is-it-linear',
-      'slope-recall',
-      'types-of-slope',
-      'zero-of-a-function',
-      'from-graph',
-      'from-equation',
-      'from-table',
-    ]);
-  });
 });
 
 describe('reading direction does not flip the sign', () => {
@@ -310,6 +299,30 @@ describe('from-graph', () => {
     const joined = s.steps.map((st) => st.text).join(' ');
     expect(joined).toContain('undefined');
     expect(joined).toContain('Types of slope');
+  });
+});
+
+describe('types-of-slope', () => {
+  it('still names the flat versus vertical distinction', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'includes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'types-of-slope')!;
+    // Positive guard: the "makes no such claim" test above would also pass on
+    // a watchFor that had been emptied outright.
+    expect(s.watchFor).toContain(
+      'Zero slope and undefined slope are different things: flat versus vertical.',
+    );
+  });
+
+  it('is the only section that explains the undefined slope', () => {
+    // from-graph closes by pointing here. Carrying the reason next to the
+    // pointer as well made a student read the same sentence twice.
+    for (const kind of KINDS) {
+      const ex = exampleFrom(rat(2), rat(-8), kind);
+      const explaining = sectionsFor(ex)
+        .filter((s) => s.steps.some((st) => st.why?.includes('Undefined is not the same as zero')))
+        .map((s) => s.id);
+      expect(explaining).toEqual(['types-of-slope']);
+    }
   });
 });
 

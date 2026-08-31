@@ -156,7 +156,7 @@ export function LabShell() {
             </p>
           )}
 
-          <StepReveal key={section.id} steps={section.steps} />
+          <StepReveal key={`${section.id}-${tableKind}`} steps={section.steps} />
 
           {tutorMode && section.watchFor && <WatchFor items={section.watchFor} />}
           {tutorMode && section.tutorNote && (

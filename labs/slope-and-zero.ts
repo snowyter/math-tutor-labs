@@ -252,9 +252,6 @@ export function conceptSections(ex: LinearExample): Section[] {
           },
         },
       ],
-      // No reading-direction note here: reversing the direction negates the
-      // rise and the run both, so rise/run does not change. Slope-recall sits
-      // just above and names the real cause of a flipped sign.
       watchFor: ['Zero slope and undefined slope are different things: flat versus vertical.'],
     },
     {
@@ -379,7 +376,6 @@ export function representationSections(ex: LinearExample): Section[] {
         },
         {
           text: 'One special case: a straight vertical line has no run at all, so its slope is undefined — see Types of slope.',
-          why: 'Undefined is not the same as zero. Zero is flat, undefined is vertical.',
         },
       ],
       watchFor: [
