@@ -357,3 +357,23 @@ describe('from-equation', () => {
     expect(joined).toContain('−A/B');
   });
 });
+
+describe('from-table: two routes to the zero', () => {
+  it('teaches both the walk and the solve-for-b route', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'excludes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+    const joined = s.steps.map((st) => st.text).join(' ');
+    expect(joined).toContain('walk');
+    expect(joined).toContain('b');
+    // the bare 'b' above matches any copy containing the letter, so pin the
+    // algebra route down to the substitution it actually has to show
+    expect(joined).toContain('b = y − ');
+  });
+
+  it('states both routes agree', () => {
+    const ex = exampleFrom(rat(2), rat(-8), 'excludes-zero');
+    const s = sectionsFor(ex).find((x) => x.id === 'from-table')!;
+    const last = s.steps[s.steps.length - 1]!;
+    expect(last.text).toContain('same');
+  });
+});

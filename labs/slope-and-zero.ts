@@ -1,4 +1,4 @@
-import { rat, format, isZero, sub, div } from '../src/engine/rational';
+import { rat, format, isZero, sub, mul, div } from '../src/engine/rational';
 import type { LinearExample, Point, Rational, Section, Step } from '../src/engine/types';
 
 function zeroText(ex: LinearExample): string {
@@ -278,6 +278,15 @@ export function representationSections(ex: LinearExample): Section[] {
   const zeroRowIndex = rows.findIndex((r) => isZero(r.y));
   const zero = ex.zero ?? 'none';
 
+  // The algebra route to the zero: work b out of y = mx + b over the table's
+  // first row, printed as a full chain so nothing is skipped when read aloud.
+  const row0 = rows[0]!;
+  const mx0 = mul(ex.m, rat(row0.x));
+  const bWorked =
+    `Take the row x = ${row0.x}, y = ${format(row0.y)}: ` +
+    `b = ${signedRat(row0.y)} − ${signedRat(ex.m)} × ${signedInt(row0.x)}` +
+    ` = ${signedRat(row0.y)} − ${signedRat(mx0)} = ${format(sub(row0.y, mx0))}`;
+
   const tableSection: Section =
     ex.tableKind === 'includes-zero'
       ? {
@@ -343,6 +352,22 @@ export function representationSections(ex: LinearExample): Section[] {
             {
               text: 'What is the zero?',
               answer: { kind: 'numeric', prompt: 'zero: x =', correct: zero },
+            },
+            // Kept below the question on purpose: StepReveal leaves revealed
+            // steps on screen, so printing the zero here would hand it over.
+            {
+              text: 'A second way: use the slope and one row to find b, then solve f(x) = 0.',
+              why: 'Write y = mx + b, put in the row, work out b, then set y to 0.',
+            },
+            {
+              text: `Here the slope is ${format(ex.m)}, so b = y − ${signedRat(ex.m)}x. ${bWorked}.`,
+            },
+            {
+              text: `Now set y to 0 and solve for x: ${zeroText(ex)}.`,
+              why: 'Set y to 0 and you get 0 = mx + b. Take b off both sides, then divide by m.',
+            },
+            {
+              text: 'Both ways give the same zero. Use the walk to see it, the algebra to work it out.',
             },
           ],
           watchFor: [
