@@ -152,14 +152,26 @@ function eqText(c: number, k: number): string {
   return k < 0 ? `0 = ${c}x - ${Math.abs(k)}` : `0 = ${c}x + ${k}`;
 }
 
-// Both lessons need whole numbers with a whole zero and a positive
-// coefficient: the balance scale shows x-blocks, and the practice equation
-// stays readable.
-function lessonParams(p: LabNumbers): { m: number; b: number } | null {
+// Both lessons need a whole slope and intercept with a whole zero, so the
+// blocks and the walk stay readable.
+function wholeWithWholeZero(p: LabNumbers): { m: number; b: number } | null {
   if (!Number.isInteger(p.m) || !Number.isInteger(p.b)) return null;
-  if (p.m < 1 || p.b === 0) return null;
+  if (p.m === 0 || p.b === 0) return null;
   if (!Number.isInteger(-p.b / p.m)) return null;
   return { m: p.m, b: p.b };
+}
+
+// The balance scale draws `coefficient` x-blocks, so it cannot show a
+// negative number of them.
+function balanceParams(p: LabNumbers): { m: number; b: number } | null {
+  const w = wholeWithWholeZero(p);
+  return w && w.m >= 1 ? w : null;
+}
+
+// Substituting works fine with a negative slope — the arithmetic and the
+// wording both come out right — so only the shared whole-number rules apply.
+function substitutionParams(p: LabNumbers): { m: number; b: number } | null {
+  return wholeWithWholeZero(p);
 }
 
 function solvingTwoStep(c: number, k: number): PrereqLesson {
@@ -192,7 +204,9 @@ function solvingTwoStep(c: number, k: number): PrereqLesson {
 
 function substitutingToCheck(m: number, b: number): PrereqLesson {
   const zero = -b / m;
-  const m2 = m + 1;
+  // Step away from the lesson slope, but never onto 0 — a zero practice
+  // slope would collapse the equation to y = 0x + 0.
+  const m2 = m > 0 ? m + 1 : m - 1;
   const b2 = 3 * m2;
   const combine =
     b < 0
@@ -222,11 +236,11 @@ function substitutingToCheck(m: number, b: number): PrereqLesson {
 
 export function buildPrereq(id: string, params?: LabNumbers): PrereqLesson | undefined {
   if (id === 'solving-two-step-equations') {
-    const p = params ? lessonParams(params) : null;
+    const p = params ? balanceParams(params) : null;
     return attachDrill(p ? solvingTwoStep(p.m, p.b) : solvingTwoStep(3, 6));
   }
   if (id === 'substituting-to-check') {
-    const p = params ? lessonParams(params) : null;
+    const p = params ? substitutionParams(params) : null;
     return attachDrill(p ? substitutingToCheck(p.m, p.b) : substitutingToCheck(2, -8));
   }
   const lesson = LESSONS.find((l) => l.id === id);

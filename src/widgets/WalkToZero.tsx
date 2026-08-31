@@ -56,20 +56,17 @@ export function WalkToZero({
         <Fraction value={absRise} />
       </>
     );
-    runLine =
-      walk.hops === 0 ? (
-        'No walk needed — the zero is right here.'
-      ) : (
-        <>
-          {`Each 1 ${down ? 'down' : 'up'} is `}
-          <Fraction value={absHop} />
-          {` across: ${walk.hops} ${walk.hops === 1 ? 'hop' : 'hops'} of `}
-          <Fraction value={absHop} />
-          {`, `}
-          <Fraction value={absRun} />
-          {` ${riseWord} in total.`}
-        </>
-      );
+    runLine = (
+      <>
+        {`Each 1 ${down ? 'down' : 'up'} is `}
+        <Fraction value={absHop} />
+        {` across: ${walk.hops} ${walk.hops === 1 ? 'hop' : 'hops'} of `}
+        <Fraction value={absHop} />
+        {`, `}
+        <Fraction value={absRun} />
+        {` ${riseWord} in total.`}
+      </>
+    );
   } else {
     riseLine = 'The y-values here are not whole, so the walk is one jump:';
     runLine = (

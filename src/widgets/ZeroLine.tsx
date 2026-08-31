@@ -3,6 +3,19 @@ import './ZeroLine.css';
 import { format, isInteger, isZero, neg, toNumber } from '../engine/rational';
 import type { Rational } from '../engine/types';
 
+// The split marks from 0 to -b, one per part of the division by m. The point
+// that lands exactly on the zero is left out: the zero marker already sits
+// there, and drawing a tick under it would hide the mark and make the number
+// of visible parts disagree with the caption.
+export function splitPoints(negB: number, m: number, zero: number): number[] {
+  const out: number[] = [];
+  for (let i = 1; i < Math.abs(m); i++) {
+    const p = (i * negB) / m;
+    if (Math.abs(p - zero) > 1e-9) out.push(p);
+  }
+  return out;
+}
+
 export function ZeroLine({ m, b, zero }: { m: Rational; b: Rational; zero: Rational | null }) {
   const [revealed, setRevealed] = useState(false);
 
@@ -27,10 +40,7 @@ export function ZeroLine({ m, b, zero }: { m: Rational; b: Rational; zero: Ratio
   for (let v = Math.ceil(lo); v <= Math.floor(hi); v++) ticks.push(v);
 
   const wholeM = isInteger(m) && m.n !== 0;
-  const parts: number[] = [];
-  if (revealed && wholeM) {
-    for (let i = 1; i < Math.abs(m.n); i++) parts.push((i * nb) / m.n);
-  }
+  const parts = revealed && wholeM ? splitPoints(nb, m.n, z) : [];
 
   return (
     <div className="zeroline">

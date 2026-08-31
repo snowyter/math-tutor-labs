@@ -74,8 +74,29 @@ describe('buildPrereq: substituting-to-check', () => {
     expect(l!.widget).toEqual({ kind: 'substitution', m: 2, b: -8 });
   });
 
-  it('falls back to defaults for a negative slope', () => {
+  it('uses lab numbers for a negative slope with a whole zero', () => {
     const l = buildPrereq('substituting-to-check', { m: -2, b: 8 });
+    expect(l!.widget).toEqual({ kind: 'substitution', m: -2, b: 8 });
+    expect(l!.steps[0]!.text).toContain('x = 4');
+    expect(l!.steps[0]!.text).toContain('y = -2x + 8');
+    expect(l!.steps[2]!.text).toContain('That is -8 plus 8, which is 0.');
+  });
+
+  it('keeps the practice equation valid when the slope is -1', () => {
+    const l = buildPrereq('substituting-to-check', { m: -1, b: 5 });
+    expect(l!.widget).toEqual({ kind: 'substitution', m: -1, b: 5 });
+    // must not degenerate into y = 0x + 0
+    expect(l!.steps[4]!.text).not.toContain('y = 0x');
+    expect(l!.steps[4]!.answer).toEqual({ kind: 'numeric', prompt: 'y =', correct: rat(0) });
+  });
+
+  it('falls back to defaults for a fractional slope', () => {
+    const l = buildPrereq('substituting-to-check', { m: 0.5, b: 4 });
+    expect(l!.widget).toEqual({ kind: 'substitution', m: 2, b: -8 });
+  });
+
+  it('falls back to defaults when the zero is not whole', () => {
+    const l = buildPrereq('substituting-to-check', { m: -4, b: 6 });
     expect(l!.widget).toEqual({ kind: 'substitution', m: 2, b: -8 });
   });
 });

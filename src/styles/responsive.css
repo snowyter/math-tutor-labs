@@ -148,7 +148,9 @@
 
   /* Interactives */
   .dragplane-svg,
-  .dnumberline-svg {
+  .dnumberline-svg,
+  .walktozero-svg,
+  .zeroline-svg {
     max-width: 100%;
   }
 
